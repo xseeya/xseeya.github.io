@@ -61,7 +61,7 @@ body {
     box-shadow: 0 25px 50px -12px var(--shadow-color);
     padding: 40px;
     text-align: center;
-    max-width: 450px;
+    max-width: 600px;
     width: 90%;
     position: relative;
     overflow: hidden;
@@ -142,11 +142,18 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
-    padding-right: 45px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-right: 30px;
+}
+
+.links li:nth-child(5) {
+    grid-column: span 2;
 }
 
 .links li {
-    margin: 10px 0; /* Уменьшить отступы между элементами списка */
+    margin: 10px 25px; /* Уменьшить отступы между элементами списка */
 }
 
 .links a {
@@ -169,6 +176,10 @@ body {
     height: 50px; /* Установить фиксированную высоту для всех ссылок */
     position: relative;
     overflow: hidden;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .links a::before {
@@ -231,6 +242,7 @@ body {
     color: white;
     transform: translateY(-2px) scale(1.05);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    -webkit-text-fill-color: white;
 }
 
 .theme-switcher {
