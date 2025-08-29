@@ -66,7 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            window.open(url, '_blank');
+            const fullUrl = link.getAttribute('href');
+            window.open(fullUrl, '_blank');
         });
     });
 });
