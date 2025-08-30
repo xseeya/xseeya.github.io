@@ -7,6 +7,46 @@
     --accent-hover: #ff6b7c;
     --progress-bg-light: #ddd;
     --progress-bg-dark: #333;
+    --border-radius: 50%;
+    --transition-base: all 0.3s ease;
+    --box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+@keyframes rotate {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes slide {
+    0% { left: 0; }
+    50% { left: calc(100% - 20px); }
+    100% { left: 0; }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+@keyframes newAnimation {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes noteToLyrics {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-20px); opacity: 0; }
+}
+
+@keyframes containerHeight {
+    0% { height: 0; }
+    100% { height: auto; }
+}
 }
 
 body {
@@ -38,9 +78,9 @@ body.dark {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    border-radius: var(--border-radius);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: var(--transition-base);
 }
 .theme-switcher:hover {
     background: var(--accent);
@@ -58,6 +98,9 @@ body.dark {
     width: 100%;
     text-align: center;
     transition: background 0.3s, border 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 body.dark .card {
     background: #1c1c1c;
@@ -104,12 +147,12 @@ body.dark .avatar img {
     color: #fff;
     width: 28px;
     height: 28px;
-    border-radius: 50%;
+    border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1em;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    box-shadow: var(--box-shadow);
     cursor: default;
     transition: transform 0.2s ease, background 0.3s ease;
     border: 3px solid var(--bg-light); /* создаёт эффект "выреза" */
@@ -149,7 +192,7 @@ body.dark .avatar-badge {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 8px; 
+    gap: 8px;
 }
 .name::after {
     content: "";
@@ -211,7 +254,7 @@ body.dark .developer:hover {
 }
 .album-cover img {
     width: 100%;
-    border-radius: 10px;
+    border-radius: 15px;
 }
 .play-pause-btn {
     position: absolute;
@@ -252,31 +295,69 @@ body.dark .developer:hover {
 }
 .volume-wrapper {
     display: flex;
+    flex-direction: column;
     align-items: center;
+    position: relative;
+    height: 165px;
+    padding-bottom: 15px;
+    justify-content: flex-end;
 }
+
 .volume-toggle {
-    margin-right: 5px;
     cursor: pointer;
-    padding-top: 4px;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    opacity: 0.7;
+    padding-bottom: 73px;
+    order: 2;
 }
+
 .volume-toggle:hover {
+    opacity: 1;
     transform: scale(1.2);
 }
 
-/* Ползунок громкости */
+.volume-bar {
+    width: 6px;
+    height: 900px;
+    background: var(--progress-bg-light);
+    border-radius: 3px;
+    position: relative;
+    margin-bottom: 8px;
+    order: 1;
+    transform: scaleY(0);
+    transform-origin: bottom center;
+    transition: transform 0.3s ease, opacity 0.2s ease;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.volume-bar.visible {
+    transform: scaleY(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
 .volume-bar input {
     -webkit-appearance: none;
     appearance: none;
-    width: 80px;
-    height: 6px;
-    background: var(--progress-bg-light);
-    border-radius: 3px;
+    width: 100%;
+    height: 110%;
+    background: transparent;
     outline: none;
-    transition: background 0.4s ease; /* плавнее */
+    writing-mode: vertical-lr;
+    direction: rtl;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
 }
-body.dark .volume-bar input {
+
+body.dark .volume-bar {
     background: var(--progress-bg-dark);
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
 }
 
 /* "Точка" для Chrome/Safari */
@@ -287,10 +368,11 @@ body.dark .volume-bar input {
     height: 16px;
     background: var(--accent);
     border-radius: 50%;
-    border: 2px solid #e8e8e8; /* обводка для контраста */
+    border: 2px solid #e8e8e8;
     box-shadow: 0 0 4px rgba(0,0,0,0.3);
     cursor: pointer;
     transition: transform 0.25s ease, background 0.3s ease, box-shadow 0.3s ease;
+    animation: pulse 1s infinite;
 }
 .volume-bar input::-webkit-slider-thumb:hover {
     transform: scale(1.25);
@@ -308,25 +390,36 @@ body.dark .volume-bar input {
     box-shadow: 0 0 4px rgba(0,0,0,0.3);
     cursor: pointer;
     transition: transform 0.25s ease, background 0.3s ease, box-shadow 0.3s ease;
+    animation: pulse 1s infinite;
 }
 .volume-bar input::-moz-range-thumb:hover {
     transform: scale(1.25);
     background: var(--accent-hover);
     box-shadow: 0 0 6px var(--accent-hover);
 }
-
-
+body.dark .volume-bar input::-moz-range-thumb {
+    background: var(--accent);
+}
+body.dark .volume-bar input::-moz-range-thumb:hover {
+    background: var(--accent-hover);
+}
+body.dark .volume-bar input::-webkit-slider-thumb {
+    background: var(--accent);
+}
+body.dark .volume-bar input::-webkit-slider-thumb:hover {
+    background: var(--accent-hover);
+}
 
 /* Прогресс-бар */
 .progress-container {
-    margin-top: 8px;
+    margin-top: -45px;
     position: relative;
 }
 .progress-bar {
     width: 100%;
-    height: 6px;
+    height: 8px;
     background: var(--progress-bg-light);
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: visible;
     position: relative;
     cursor: pointer;
@@ -381,8 +474,9 @@ body.dark .time-tooltip {
 /* Ссылки */
 .links {
     list-style: none;
-    margin-top: 15px;
+    margin-top: -85px;
     margin-right: 25px;
+    transition: margin-top 0.3s ease;
 }
 .links li {
     margin: 8px 0;
@@ -441,32 +535,64 @@ body {
 }
 .lyrics-container {
     margin-top: 8px;
-    font-size: 0.8em;
-    color: var(--text-light);
+    font-size: 1em;
+    color: #333;
     text-align: center;
-    min-height: 1.2em; /* фиксированная высота, чтобы блок не прыгал */
-    padding: 4px 6px;
-    border-radius: 6px;
-    background: rgba(0,0,0,0.03);
+    height: 75px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.05);
     overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    word-wrap: break-word;
+    opacity: 0;
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
+    transform: translateY(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.lyrics-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.lyrics-container.single-line {
+    font-size: 1.2em;
 }
 body.dark .lyrics-container {
-    color: var(--text-dark);
-    background: rgba(255,255,255,0.05);
+    color: #ccc;
+    background: rgba(255,255,255,0.1);
+}
+
+body.dark .lyrics-container:not(.visible) {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+#lyrics-line {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 0;
+    transform: translateY(5px);
+    font-weight: bold;
+    font-size: 0.9em;
+    will-change: opacity, transform;
+    white-space: normal;
+    text-align: center;
+    padding: 5px;
+}
+#lyrics-line.fade-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+#lyrics-line.fade-out {
+    opacity: 0;
+    transform: translateY(5px);
 }
 @media (max-width: 480px) {
     .lyrics-container {
         font-size: 0.7em;
         padding: 3px 4px;
     }
-}
-
-#lyrics-line {
-    transition: opacity 0.4s ease;
-    opacity: 1;
-}
-#lyrics-line.fade-out {
-    opacity: 0;
 }

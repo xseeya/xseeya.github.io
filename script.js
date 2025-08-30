@@ -14,6 +14,9 @@ function toggleTheme() {
 window.toggleTheme = toggleTheme;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // Изначально скрываем текст песни
+    document.querySelector('.lyrics-container').classList.remove('visible');
+    
     const savedTheme = localStorage.getItem(themeKey);
     if (savedTheme === 'dark') {
         document.body.classList.add(darkModeClass);
@@ -40,6 +43,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (metadata.format.duration) {
             document.getElementById('duration').textContent = formatTime(metadata.format.duration);
         }
+
+        // Сброс прогресс бара при загрузке
+        progressBar.style.width = '0%';
+        currentTimeEl.textContent = '0:00';
     } catch (err) {
         console.error("Ошибка при чтении метаданных:", err);
         document.getElementById('song-title').textContent = "Ошибка чтения тегов";
@@ -63,6 +70,11 @@ const progressContainer = document.querySelector('.progress-bar');
 const currentTimeEl = document.getElementById('current-time');
 const durationEl = document.getElementById('duration');
 const albumCover = document.querySelector('.album-cover');
+const lyricsLine = document.getElementById('lyrics-line');
+const loadingAnimation = document.querySelector('.loading-animation');
+if (loadingAnimation) {
+    loadingAnimation.style.animation = 'noteToLyrics 1s ease-in-out forwards';
+}
 
 // тултип времени
 const timeTooltip = document.createElement('div');
@@ -152,20 +164,79 @@ progressContainer.addEventListener('mouseleave', () => {
 });
 
 playPauseBtn.addEventListener('click', playPause);
-audioPlayer.addEventListener('timeupdate', updateProgress);
+audioPlayer.addEventListener('timeupdate', () => {
+    updateProgress();
+    const currentTime = audioPlayer.currentTime;
+    if (currentTime >= 10 && currentTime <= 15) { // Пример тайминга
+        // Скрыть знак
+        const someSign = document.querySelector('.some-sign');
+        if (someSign) {
+            someSign.style.display = 'none';
+        }
+    } else {
+        // Показать знак
+        const someSign = document.querySelector('.some-sign');
+        if (someSign) {
+            someSign.style.display = 'block';
+        }
+    }
+});
 audioPlayer.addEventListener('ended', () => {
     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
     albumCover.classList.remove('playing');
     isPlaying = false;
+    lyricsLine.classList.remove('fade-in');
+    lyricsLine.classList.add('fade-out');
+});
+
+audioPlayer.addEventListener('play', () => {
+    const container = document.querySelector('.lyrics-container');
+    container.classList.add('visible');
+    // Force reflow to trigger transition
+    void container.offsetHeight;
+    setTimeout(() => {
+        lyricsLine.classList.remove('fade-out');
+        lyricsLine.classList.add('fade-in');
+    }, 100); // Небольшая задержка для появления контейнера
+
+    // Плавно съезжаем блок links вниз
+    const linksBlock = document.querySelector('.links');
+    linksBlock.style.marginTop = '15px';
+});
+
+audioPlayer.addEventListener('pause', () => {
+    lyricsLine.classList.remove('fade-in');
+    lyricsLine.classList.add('fade-out');
+    setTimeout(() => {
+        document.querySelector('.lyrics-container').classList.remove('visible');
+        document.querySelector('.links').style.marginTop = '-85px'; // Возвращаем блок с соц. сетями на место
+    }, 500); // Увеличили задержку для завершения анимации
+});
+
+audioPlayer.addEventListener('ended', () => {
+    lyricsLine.classList.remove('fade-in');
+    lyricsLine.classList.add('fade-out');
+    setTimeout(() => {
+        document.querySelector('.lyrics-container').classList.remove('visible');
+    }, 500); // Увеличили задержку для завершения анимации
 });
 
 // громкость + mute
 const volumeWrapper = document.querySelector('.volume-wrapper');
 const volumeToggle = document.querySelector('.volume-toggle');
 const volumeSlider = document.getElementById('volume-slider');
+const volumeBar = document.querySelector('.volume-bar');
 let isMuted = false;
 
 volumeSlider.value = audioPlayer.volume;
+
+function showVolumeBar() {
+    volumeBar.classList.add('visible');
+}
+
+function hideVolumeBar() {
+    volumeBar.classList.remove('visible');
+}
 
 volumeSlider.addEventListener('input', () => {
     audioPlayer.volume = volumeSlider.value;
@@ -173,6 +244,12 @@ volumeSlider.addEventListener('input', () => {
         isMuted = false;
         audioPlayer.muted = false;
         volumeToggle.innerHTML = '<i class="fas fa-volume-up"></i>';
+        volumeWrapper.classList.remove('active');
+    } else {
+        isMuted = true;
+        audioPlayer.muted = true;
+        volumeToggle.innerHTML = '<i class="fas fa-volume-mute"></i>';
+        volumeWrapper.classList.add('active');
     }
 });
 
@@ -180,8 +257,19 @@ volumeToggle.addEventListener('click', () => {
     volumeWrapper.classList.toggle('active');
     isMuted = !isMuted;
     audioPlayer.muted = isMuted;
-    volumeToggle.innerHTML = isMuted 
-        ? '<i class="fas fa-volume-mute"></i>' 
+    volumeToggle.innerHTML = isMuted
+        ? '<i class="fas fa-volume-mute"></i>'
         : '<i class="fas fa-volume-up"></i>';
 });
 
+// Показывать ползунок при наведении на иконку
+volumeToggle.addEventListener('mouseenter', showVolumeBar);
+volumeBar.addEventListener('mouseenter', showVolumeBar);
+
+// Скрывать ползунок при уходе курсора с обеих областей
+volumeWrapper.addEventListener('mouseleave', (e) => {
+    // Проверяем, что курсор не над ползунком и не над иконкой
+    if (!volumeBar.matches(':hover') && !volumeToggle.matches(':hover')) {
+        hideVolumeBar();
+    }
+});
