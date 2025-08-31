@@ -9,106 +9,100 @@
 </head>
 <body>
     <button class="theme-switcher" onclick="toggleTheme()">🌞</button>
-    <div class="card">
-     <div class="card-header">
-   <div class="avatar">
-    <img src="yoda.jpg" alt="Avatar">
-    <div class="avatar-badge" data-tooltip="Junior Python Developer">
-    <i class="fab fa-python"></i>
-</div>
-
-</div>
-
-    <h1 class="name">
-  Владимир Чернов <span class="age">18</span>
-</h1>
-
-</div>
-
-
-<div class="music-player">
-  <div class="player-container">
-    <div class="album-cover">
-      <img id="album-art" src="album-cover.jpg" alt="Album Cover">
-      <div class="play-pause-btn" id="play-pause-btn">
-        <i class="fas fa-play"></i>
-      </div>
-    </div>
-
-    <div class="player-controls">
-  <div class="track-header">
-    <div class="song-info">
-      <div class="song-title" id="song-title">Loading...</div>
-      <div class="song-artist" id="song-artist">Loading...</div>
-    </div>
-    <div class="volume-wrapper">
-      <div class="volume-toggle">
-        <i class="fas fa-volume-up"></i>
-      </div>
-      <div class="volume-bar">
-        <input type="range" id="volume-slider" min="0" max="1" step="0.01">
-      </div>
-    </div>
-  </div>
-
- <div class="progress-container">
-  <div class="progress-bar">
     
-  <div class="progress" id="progress"></div>
-</div>
+    <div class="card">
+        <div class="card-header">
+            <div class="avatar">
+                <img src="yoda.jpg" alt="Avatar">
+                <div class="avatar-badge" data-tooltip="Junior Python Developer">
+                    <i class="fab fa-python"></i>
+                </div>
+            </div>
 
-  <div class="time">
-    <span id="current-time">0:00</span>
-    <span id="duration">0:00</span>
-  </div>
-</div>
+            <h1 class="name">
+                Владимир Чернов <span class="age">18</span>
+            </h1>
+        </div>
 
-<div class="lyrics-container">
-  <div class="loading-animation"></div>
-  <p id="lyrics-line"></p>
-</div>
+        <div class="music-player">
+            <div class="player-container">
+                <div class="album-cover">
+                    <img id="album-art" src="album-cover.jpg" alt="Album Cover">
+                    <div class="play-pause-btn" id="play-pause-btn">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
 
-      <audio id="audio-player" src="music.mp3" preload="metadata"></audio>
-    </div>
-  </div>
-</div>
+                <div class="player-controls">
+                    <div class="track-header">
+                        <div class="song-info">
+                            <div class="song-title" id="song-title">Loading...</div>
+                            <div class="song-artist" id="song-artist">Loading...</div>
+                        </div>
+                        <div class="volume-wrapper">
+                            <div class="volume-toggle">
+                                <i class="fas fa-volume-up"></i>
+                            </div>
+                            <div class="volume-bar">
+                                <input type="range" id="volume-slider" min="0" max="1" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress" id="progress"></div>
+                        </div>
+
+                        <div class="time">
+                            <span id="current-time">0:00</span>
+                            <span id="duration">0:00</span>
+                        </div>
+                    </div>
+
+                    <div class="lyrics-container">
+                        <div class="loading-animation"></div>
+                        <p id="lyrics-line"></p>
+                    </div>
+
+                    <audio id="audio-player" src="music.mp3" preload="metadata"></audio>
+                </div>
+            </div>
+        </div>
+
         <ul class="links">
             <li>
-  <a href="https://gitlab.com/AstroCod3/" class="link-tooltip">
-    <i class="fab fa-gitlab"></i>
-    <span>AstroCod3</span>
-    <i class="fas fa-arrow-right"></i>
-  </a>
-</li>
-
-<li>
-  <a href="https://steamcommunity.com/id/xzrof/" class="link-tooltip">
-    <i class="fab fa-steam"></i>
-    <span>xzrof</span>
-    <i class="fas fa-arrow-right"></i>
-  </a>
-</li>
-
-<li>
-  <a href="tg://resolve?domain=xseeyya" class="link-tooltip">
-    <i class="fab fa-telegram"></i>
-    <span>@xseeyya</span>
-    <i class="fas fa-arrow-right"></i>
-  </a>
-</li>
-
-<li>
-  <a href="https://vk.com/xseeyya" class="link-tooltip">
-    <i class="fab fa-vk"></i>
-    <span>xseeyya</span>
-    <i class="fas fa-arrow-right"></i>
-  </a>
-</li>
-
- </ul>
+                <a href="https://gitlab.com/AstroCod3/" class="link-tooltip">
+                    <i class="fab fa-gitlab"></i>
+                    <span>AstroCod3</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li>
+            
+            <li>
+                <a href="https://steamcommunity.com/id/xzrof/" class="link-tooltip">
+                    <i class="fab fa-steam"></i>
+                    <span>xzrof</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li>
+            <li>
+                <a href="tg://resolve?domain=xseeyya" class="link-tooltip">
+                    <i class="fab fa-telegram"></i>
+                    <span>@xseeyya</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li>
+            <li>
+                <a href="https://vk.com/xseeyya" class="link-tooltip">
+                    <i class="fab fa-vk"></i>
+                    <span>xseeyya</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </li>
+        </ul>
     </div>
 
-    
     <script type="module" src="script.js"></script>
     <script type="module" src="lyrics.js"></script>
 </body>

@@ -1,68 +1,7 @@
 import * as musicMetadata from 'https://cdn.jsdelivr.net/npm/music-metadata-browser/+esm';
 
+// Элементы DOM
 const themeSwitcher = document.querySelector('.theme-switcher');
-const darkModeClass = 'dark';
-const sunIcon = '🌞';
-const moonIcon = '🌓';
-const themeKey = 'theme';
-
-function toggleTheme() {
-    const isDark = document.body.classList.toggle(darkModeClass);
-    themeSwitcher.textContent = isDark ? moonIcon : sunIcon;
-    localStorage.setItem(themeKey, isDark ? 'dark' : 'light');
-}
-window.toggleTheme = toggleTheme;
-
-document.addEventListener('DOMContentLoaded', async () => {
-    // Изначально скрываем текст песни
-    document.querySelector('.lyrics-container').classList.remove('visible');
-    
-    const savedTheme = localStorage.getItem(themeKey);
-    if (savedTheme === 'dark') {
-        document.body.classList.add(darkModeClass);
-        themeSwitcher.textContent = moonIcon;
-    } else {
-        themeSwitcher.textContent = sunIcon;
-    }
-
-    try {
-        const response = await fetch('music.mp3');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const blob = await response.blob();
-        const metadata = await musicMetadata.parseBlob(blob);
-
-        document.getElementById('song-title').textContent = metadata.common.title || "Неизвестный трек";
-        document.getElementById('song-artist').textContent = metadata.common.artist || "Неизвестный исполнитель";
-
-        if (metadata.common.picture?.length) {
-            const picture = metadata.common.picture[0];
-            const base64String = arrayBufferToBase64(picture.data);
-            document.getElementById('album-art').src = `data:${picture.format};base64,${base64String}`;
-        }
-
-        if (metadata.format.duration) {
-            document.getElementById('duration').textContent = formatTime(metadata.format.duration);
-        }
-
-        // Сброс прогресс бара при загрузке
-        progressBar.style.width = '0%';
-        currentTimeEl.textContent = '0:00';
-    } catch (err) {
-        console.error("Ошибка при чтении метаданных:", err);
-        document.getElementById('song-title').textContent = "Ошибка чтения тегов";
-        document.getElementById('song-artist').textContent = "";
-    }
-});
-
-function arrayBufferToBase64(buffer) {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return window.btoa(binary);
-}
-
 const audioPlayer = document.getElementById('audio-player');
 const playPauseBtn = document.getElementById('play-pause-btn');
 const progressBar = document.getElementById('progress');
@@ -72,20 +11,34 @@ const durationEl = document.getElementById('duration');
 const albumCover = document.querySelector('.album-cover');
 const lyricsLine = document.getElementById('lyrics-line');
 const loadingAnimation = document.querySelector('.loading-animation');
-if (loadingAnimation) {
-    loadingAnimation.style.animation = 'noteToLyrics 1s ease-in-out forwards';
-}
 
-// тултип времени
-const timeTooltip = document.createElement('div');
-timeTooltip.classList.add('time-tooltip');
-progressContainer.appendChild(timeTooltip);
+// Константы
+const darkModeClass = 'dark';
+const sunIcon = '🌞';
+const moonIcon = '🌓';
+const themeKey = 'theme';
 
+// Переменные состояния
 let isPlaying = false;
 let isDragging = false;
 let isPlayingBeforeDrag = false;
 let dragPercent = 0;
 
+// Инициализация тултипа времени
+const timeTooltip = document.createElement('div');
+timeTooltip.classList.add('time-tooltip');
+progressContainer.appendChild(timeTooltip);
+
+// Функции управления темой
+function toggleTheme() {
+    const isDark = document.body.classList.toggle(darkModeClass);
+    themeSwitcher.textContent = isDark ? moonIcon : sunIcon;
+    localStorage.setItem(themeKey, isDark ? 'dark' : 'light');
+}
+
+window.toggleTheme = toggleTheme;
+
+// Функции для работы с аудио
 function playPause() {
     if (isPlaying) {
         audioPlayer.pause();
@@ -118,6 +71,7 @@ function formatTime(seconds) {
     return `${mins}:${secs}`;
 }
 
+// Функции для работы с прогресс баром
 function updateDragPosition(e) {
     const rect = progressContainer.getBoundingClientRect();
     const offsetX = Math.min(Math.max(e.clientX - rect.left, 0), rect.width);
@@ -133,14 +87,42 @@ function updateTooltip(offsetX, time) {
     timeTooltip.style.left = `${offsetX}px`;
 }
 
+// Функции для работы с громкостью
+const volumeWrapper = document.querySelector('.volume-wrapper');
+const volumeToggle = document.querySelector('.volume-toggle');
+const volumeSlider = document.getElementById('volume-slider');
+const volumeBar = document.querySelector('.volume-bar');
+let isMuted = false;
+
+function showVolumeBar() {
+    volumeBar.classList.add('visible');
+}
+
+function hideVolumeBar() {
+    volumeBar.classList.remove('visible');
+}
+
+// Вспомогательные функции
+function arrayBufferToBase64(buffer) {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+}
+
+// Обработчики событий для прогресс бара
 progressContainer.addEventListener('mousedown', (e) => {
     isDragging = true;
     isPlayingBeforeDrag = !audioPlayer.paused;
     updateDragPosition(e);
 });
+
 document.addEventListener('mousemove', (e) => {
     if (isDragging) updateDragPosition(e);
 });
+
 document.addEventListener('mouseup', () => {
     if (isDragging) {
         isDragging = false;
@@ -159,85 +141,78 @@ progressContainer.addEventListener('mousemove', (e) => {
     updateTooltip(offsetX, previewTime);
     timeTooltip.style.opacity = 1;
 });
+
 progressContainer.addEventListener('mouseleave', () => {
     timeTooltip.style.opacity = 0;
 });
 
+// Обработчики событий для аудио плеера
 playPauseBtn.addEventListener('click', playPause);
+
 audioPlayer.addEventListener('timeupdate', () => {
     updateProgress();
-    const currentTime = audioPlayer.currentTime;
-    if (currentTime >= 10 && currentTime <= 15) { // Пример тайминга
-        // Скрыть знак
-        const someSign = document.querySelector('.some-sign');
-        if (someSign) {
-            someSign.style.display = 'none';
-        }
-    } else {
-        // Показать знак
-        const someSign = document.querySelector('.some-sign');
-        if (someSign) {
-            someSign.style.display = 'block';
-        }
-    }
 });
+
 audioPlayer.addEventListener('ended', () => {
     playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
     albumCover.classList.remove('playing');
     isPlaying = false;
-    lyricsLine.classList.remove('fade-in');
-    lyricsLine.classList.add('fade-out');
-});
+    lyricsLine.classList.remove('slide-in');
+    lyricsLine.classList.add('slide-out');
+    
+    setTimeout(() => {
+            document.querySelector('.lyrics-container').classList.remove('visible');
+        }, 500);
+    });
 
 audioPlayer.addEventListener('play', () => {
-    const container = document.querySelector('.lyrics-container');
-    container.classList.add('visible');
-    // Force reflow to trigger transition
-    void container.offsetHeight;
-    setTimeout(() => {
-        lyricsLine.classList.remove('fade-out');
-        lyricsLine.classList.add('fade-in');
-    }, 100); // Небольшая задержка для появления контейнера
-
-    // Плавно съезжаем блок links вниз
-    const linksBlock = document.querySelector('.links');
-    linksBlock.style.marginTop = '15px';
+    // Отображаем lyrics-container только если песня действительно играет (а не возобновляется после паузы)
+    if (isPlaying) {
+        const container = document.querySelector('.lyrics-container');
+        // В темной теме сначала устанавливаем display: flex, затем добавляем класс visible
+                if (document.body.classList.contains(darkModeClass)) {
+                    container.style.display = 'flex';
+                    // Устанавливаем начальные значения для плавного появления
+                    container.style.opacity = '0';
+                    container.style.transform = 'translateY(15px)';
+                    
+                    // Небольшая задержка для срабатывания transition, затем добавляем класс visible
+                    requestAnimationFrame(() => {
+                        container.classList.add('visible');
+                        // Сбрасываем inline стили, чтобы класс visible мог управлять opacity и transform
+                        container.style.opacity = '';
+                        container.style.transform = '';
+                    });
+                } else {
+                    container.classList.add('visible');
+                }
+        
+        // Force reflow to trigger transition
+        void container.offsetHeight;
+        
+        setTimeout(() => {
+            lyricsLine.classList.remove('slide-out');
+            lyricsLine.classList.add('slide-in');
+            
+            // Удаляем класс slide-in после завершения анимации
+            setTimeout(() => {
+                lyricsLine.classList.remove('slide-in');
+            }, 500);
+        }, 100);
+    }
 });
 
 audioPlayer.addEventListener('pause', () => {
-    lyricsLine.classList.remove('fade-in');
-    lyricsLine.classList.add('fade-out');
+    lyricsLine.classList.remove('slide-in');
+    lyricsLine.classList.add('slide-out');
+    
     setTimeout(() => {
         document.querySelector('.lyrics-container').classList.remove('visible');
-        document.querySelector('.links').style.marginTop = '-85px'; // Возвращаем блок с соц. сетями на место
-    }, 500); // Увеличили задержку для завершения анимации
+        document.querySelector('.links').style.paddingTop = '75px';
+    }, 500);
 });
 
-audioPlayer.addEventListener('ended', () => {
-    lyricsLine.classList.remove('fade-in');
-    lyricsLine.classList.add('fade-out');
-    setTimeout(() => {
-        document.querySelector('.lyrics-container').classList.remove('visible');
-    }, 500); // Увеличили задержку для завершения анимации
-});
-
-// громкость + mute
-const volumeWrapper = document.querySelector('.volume-wrapper');
-const volumeToggle = document.querySelector('.volume-toggle');
-const volumeSlider = document.getElementById('volume-slider');
-const volumeBar = document.querySelector('.volume-bar');
-let isMuted = false;
-
-volumeSlider.value = audioPlayer.volume;
-
-function showVolumeBar() {
-    volumeBar.classList.add('visible');
-}
-
-function hideVolumeBar() {
-    volumeBar.classList.remove('visible');
-}
-
+// Обработчики событий для управления громкостью
 volumeSlider.addEventListener('input', () => {
     audioPlayer.volume = volumeSlider.value;
     if (audioPlayer.volume > 0) {
@@ -266,10 +241,77 @@ volumeToggle.addEventListener('click', () => {
 volumeToggle.addEventListener('mouseenter', showVolumeBar);
 volumeBar.addEventListener('mouseenter', showVolumeBar);
 
-// Скрывать ползунок при уходе курсора с обеих областей
+// Скрывать ползунок при уходе курсора
 volumeWrapper.addEventListener('mouseleave', (e) => {
     // Проверяем, что курсор не над ползунком и не над иконкой
     if (!volumeBar.matches(':hover') && !volumeToggle.matches(':hover')) {
         hideVolumeBar();
     }
+});
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', async () => {
+    // Изначально скрываем текст песни
+    const lyricsContainer = document.querySelector('.lyrics-container');
+    lyricsContainer.classList.remove('visible');
+    
+    const savedTheme = localStorage.getItem(themeKey);
+    if (savedTheme === 'dark') {
+        document.body.classList.add(darkModeClass);
+        themeSwitcher.textContent = moonIcon;
+    } else {
+        themeSwitcher.textContent = sunIcon;
+    }
+    
+    // В темной теме устанавливаем display: none
+    if (document.body.classList.contains(darkModeClass)) {
+        lyricsContainer.style.display = 'none';
+    }
+    
+    // Добавляем обработчик animationend для установки display: none после исчезновения
+        lyricsContainer.addEventListener('animationend', (e) => {
+            // Проверяем, что анимация завершена для lyricsContainerDisappear
+            if (e.animationName === 'lyricsContainerDisappear' && !lyricsContainer.classList.contains('visible')) {
+                // В темной теме устанавливаем display: none после завершения анимации
+                if (document.body.classList.contains(darkModeClass)) {
+                    lyricsContainer.style.display = 'none';
+                }
+            }
+        });
+
+    try {
+        const response = await fetch('music.mp3');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const blob = await response.blob();
+        const metadata = await musicMetadata.parseBlob(blob);
+
+        document.getElementById('song-title').textContent = metadata.common.title || "Неизвестный трек";
+        document.getElementById('song-artist').textContent = metadata.common.artist || "Неизвестный исполнитель";
+
+        if (metadata.common.picture?.length) {
+            const picture = metadata.common.picture[0];
+            const base64String = arrayBufferToBase64(picture.data);
+            document.getElementById('album-art').src = `data:${picture.format};base64,${base64String}`;
+        }
+
+        if (metadata.format.duration) {
+            document.getElementById('duration').textContent = formatTime(metadata.format.duration);
+        }
+
+        // Сброс прогресс бара при загрузке
+        progressBar.style.width = '0%';
+        currentTimeEl.textContent = '0:00';
+    } catch (err) {
+        console.error("Ошибка при чтении метаданных:", err);
+        document.getElementById('song-title').textContent = "Ошибка чтения тегов";
+        document.getElementById('song-artist').textContent = "";
+    }
+    
+    if (loadingAnimation) {
+        loadingAnimation.style.animation = 'noteToLyrics 1s ease-in-out forwards';
+    }
+    
+    // Инициализация состояния .links при загрузке страницы (аудио по умолчанию на паузе)
+    const linksBlock = document.querySelector('.links');
+    linksBlock.style.paddingTop = '75px';
 });

@@ -1,11 +1,16 @@
+// Элементы DOM
 const lyricsLine = document.getElementById('lyrics-line');
-let lyricsData = [];
 const lyricsContainer = document.querySelector('.lyrics-container');
+const audioPlayer = document.getElementById('audio-player');
+
+// Переменные состояния
+let lyricsData = [];
+let lastLyric = '';
 
 // Изначально скрываем текст песни
 lyricsContainer.classList.remove('visible');
 
-// Show loading animation before lyrics
+// Функция для отображения анимации загрузки
 function showLoadingAnimation() {
     const loading = document.createElement('div');
     loading.style.position = 'absolute';
@@ -18,7 +23,7 @@ function showLoadingAnimation() {
     loading.style.textAlign = 'center';
     loading.style.animation = 'rotate 2s linear infinite';
 
-const loadingAnimation = document.createElement('div');
+    const loadingAnimation = document.createElement('div');
     loadingAnimation.style.width = '60px';
     loadingAnimation.style.height = '60px';
     loadingAnimation.style.fontSize = '48px';
@@ -31,14 +36,14 @@ const loadingAnimation = document.createElement('div');
     loading.appendChild(loadingAnimation);
     lyricsContainer.appendChild(loading);
 
-    // Remove loading animation when first lyric is displayed
+    // Удалить анимацию загрузки при отображении первого текста
     const removeLoading = () => {
         if (loading.parentNode) {
             lyricsContainer.removeChild(loading);
         }
     };
 
-    // Listen for the first lyric display
+    // Прослушивать отображение первого текста
     const checkFirstLyric = () => {
         if (lyricsLine.textContent && lyricsLine.textContent !== '') {
             removeLoading();
@@ -49,6 +54,7 @@ const loadingAnimation = document.createElement('div');
     audioPlayer.addEventListener('timeupdate', checkFirstLyric);
 }
 
+// Функция для загрузки текста песни
 async function loadLyrics(fileName) {
     try {
         const res = await fetch(fileName.replace(/\.\w+$/, '.lrc'));
@@ -60,6 +66,7 @@ async function loadLyrics(fileName) {
     }
 }
 
+// Функция для парсинга LRC файла
 function parseLRC(lrcText) {
     const regex = new RegExp("\\[(\\d+):(\\d+(?:\\.\\d+)?)\\](.*)");
     return lrcText.split('\n').map(line => {
@@ -75,39 +82,49 @@ function parseLRC(lrcText) {
     }).filter(Boolean);
 }
 
+// Функция для синхронизации текста с аудио
 function syncLyrics(audioElement) {
-    let lastLyric = '';
     audioElement.addEventListener('timeupdate', () => {
         if (!lyricsData.length) return;
         const current = audioElement.currentTime;
-const currentLyric = lyricsData.slice().reverse().find(l => current >= l.time);
-        if (currentLyric && currentLyric.text !== lastLyric) {
-            lastLyric = currentLyric.text || '';
-lyricsLine.classList.add('fade-out');
+        const currentLyric = lyricsData.slice().reverse().find(l => current >= l.time);
+        
+        // Определяем текст для отображения (может быть пустой строкой)
+        const lyricText = currentLyric ? currentLyric.text : '';
+        
+        // Обновляем текст только если он изменился
+        if (lyricText !== lastLyric) {
+            lastLyric = lyricText;
+            lyricsLine.classList.add('slide-out');
+            
             setTimeout(() => {
                 lyricsLine.textContent = lastLyric;
-                lyricsLine.classList.remove('fade-out');
-                lyricsLine.classList.add('fade-in');
+                lyricsLine.classList.remove('slide-out');
+                lyricsLine.classList.add('slide-in');
 
-                // Check if the lyric fits in one line
+                // Проверить, помещается ли текст в одну строку
                 const isSingleLine = lyricsLine.scrollWidth <= lyricsLine.clientWidth;
                 if (isSingleLine) {
                     lyricsContainer.classList.add('single-line');
                 } else {
                     lyricsContainer.classList.remove('single-line');
                 }
-            }, 400);
+                
+                // Удаляем класс slide-in после завершения анимации
+                setTimeout(() => {
+                    lyricsLine.classList.remove('slide-in');
+                }, 500);
+            }, 500);
         }
     });
 }
 
-const audioPlayer = document.getElementById('audio-player');
-
-// Show loading animation when audio starts
+// Обработчики событий
 audioPlayer.addEventListener('play', () => {
     showLoadingAnimation();
 });
 
+// Загрузка и синхронизация текста
 loadLyrics(audioPlayer.src);
 syncLyrics(audioPlayer);
 
