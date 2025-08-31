@@ -67,6 +67,141 @@
     }
 }
 
+/* Анимация "набора текста" */
+@keyframes typing-dot1 {
+    0% { opacity: 0; transform: scale(0.8); }
+    25% { opacity: 1; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes typing-dot2 {
+    0% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes typing-dot3 {
+    0% { opacity: 0; transform: scale(0.8); }
+    75% { opacity: 1; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Анимация вращающегося круга (спиннер) */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner {
+    display: inline-block;
+    position: relative;
+    width: 30px;
+    height: 30px;
+}
+
+.spinner-circle {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    border: 3px solid transparent;
+    border-top: 3px solid var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+body.dark .spinner-circle {
+    border-top: 3px solid var(--accent);
+    border-right: 3px solid var(--accent);
+    border-bottom: 3px solid var(--accent);
+    border-left: 3px solid transparent;
+}
+
+/* Анимация "бегущей волны" из точек */
+@keyframes wave-pulse {
+    0%, 60%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    30% {
+        transform: scale(1.5);
+        opacity: 0.7;
+    }
+}
+
+.wave-loader {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+}
+
+.wave-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--accent);
+    margin: 0 2px;
+    animation: wave-pulse 1.5s ease-in-out infinite both;
+}
+
+.wave-dot:nth-child(1) { animation-delay: -0.24s; }
+.wave-dot:nth-child(2) { animation-delay: -0.12s; }
+.wave-dot:nth-child(3) { animation-delay: 0s; }
+
+body.dark .wave-dot {
+    background-color: var(--accent);
+}
+
+/* Анимация "набора текста" */
+@keyframes typing-dot1 {
+    0% { opacity: 0; transform: scale(0.8); }
+    25% { opacity: 1; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes typing-dot2 {
+    0% { opacity: 0; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes typing-dot3 {
+    0% { opacity: 0; transform: scale(0.8); }
+    75% { opacity: 1; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.typing-indicator {
+    display: inline-block;
+    font-weight: bold;
+}
+
+.typing-indicator .dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #333;
+    margin: 0 2px;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+body.dark .typing-indicator .dot {
+    background-color: #ccc;
+}
+
+.typing-indicator .dot:nth-child(1) {
+    animation: typing-dot1 1.5s infinite;
+}
+
+.typing-indicator .dot:nth-child(2) {
+    animation: typing-dot2 1.5s infinite;
+}
+
+.typing-indicator .dot:nth-child(3) {
+    animation: typing-dot3 1.5s infinite;
+}
 /* Новые анимации для эффекта Яндекс.Музыки */
 @keyframes slideOutUp {
     0% {
@@ -92,6 +227,15 @@
 
 /* Основные стили */
 /* Скрываем скроллбар полностью */
+html {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE и Edge */
+}
+
+html::-webkit-scrollbar {
+    display: none; /* Webkit браузеры */
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background: var(--bg-light);
@@ -109,23 +253,6 @@ body {
 /* Скрываем скроллбар для Webkit браузеров (Chrome, Safari) */
 body::-webkit-scrollbar {
     display: none;
-}
-
-body::-webkit-scrollbar {
-    width: 6px;
-}
-
-body::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-body::-webkit-scrollbar-thumb {
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 3px;
-}
-
-body.dark::-webkit-scrollbar-thumb {
-    background-color: rgba(255,255,0.2);
 }
 
 body.dark {
@@ -161,16 +288,16 @@ body.dark {
 /* Карточка */
 .card {
     background: #fff;
-    padding: 25px;
+    padding: 15px;
     border-radius: 12px;
-    border: 1px solid rgba(0,0,0.1);
+    border: 1px solid rgb(228 228 228);
     max-width: 340px;
     width: 100%;
     text-align: center;
     transition: background 0.3s, border 0.3s;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
 }
 
 body.dark .card {
@@ -189,8 +316,8 @@ body.dark .card {
 
 .avatar {
     position: relative;
-    width: 110px;
-    height: 110px;
+    width: 90px;
+    height: 90px;
 }
 
 .avatar img {
@@ -326,11 +453,11 @@ body.dark .developer:hover {
 
 /* Плеер */
 .music-player {
-    margin: 15px 0;
+    margin: 10px 0;
     background: rgba(0, 0, 0, 0.03);
     border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0.05);
+    padding: 10px;
+    box-shadow: 0 4px 12px rgb(175 175 175);
     border: 1px solid rgba(0, 0, 0, 0.05);
     position: relative;
     z-index: 11;
@@ -345,7 +472,7 @@ body.dark .music-player {
 .player-container {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 .track-header {
@@ -354,7 +481,7 @@ body.dark .music-player {
 
 
 .progress-container {
-    padding-top: 10px;
+    padding-top: 5px;
 }
 
 .album-cover {
@@ -546,13 +673,13 @@ body.dark .volume-bar input::-webkit-slider-thumb:hover {
 
 /* Прогресс-бар */
 .progress-container {
-    margin-top: -45px;
+    margin-top: -75px;
     position: relative;
 }
 
 .progress-bar {
     width: 100%;
-    height: 8px;
+    height: 6px;
     background: var(--progress-bg-light);
     border-radius: 4px;
     overflow: visible;
@@ -608,7 +735,7 @@ body.dark .time-tooltip {
     display: flex;
     justify-content: space-between;
     font-size: 0.75em;
-    margin-top: 7px;
+    margin-top: 10px;
     margin-left: 2px;
     font-weight: 600;
 }
@@ -625,17 +752,25 @@ body.dark #duration {
 }
 
 /* Ссылки */
-
+ 
 /* Ссылки */
 .links {
     list-style: none;
-    margin-top: -85px;
+    margin-top: -65px;
     margin-right: 25px;
     transition: margin-top 0.3s ease;
     position: relative;
     z-index: 10;
-    padding-top: 75px;
+    padding-top: 55px;
+    /* Скрываем скроллбар */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE и Edge */
 }
+
+.links::-webkit-scrollbar {
+    display: none; /* Webkit браузеры */
+}
+
 .links {
     list-style: none;
     margin-top: -85px;
@@ -645,7 +780,7 @@ body.dark #duration {
 }
 
 .links li {
-    margin: 8px 0;
+    margin: 5px 0;
 }
 
 .links a {
@@ -681,14 +816,14 @@ body.dark #duration {
 
 /* Текст песни */
 .lyrics-container {
-    margin-top: 8px;
+    margin-top: 5px;
     font-size: 1em;
     color: #333;
     text-align: center;
-    height: 75px;
+    height: 50px;
     padding: 8px 12px;
     border-radius: 8px;
-    background: rgba(0,0,0,0.05);
+    background: none;
     overflow: hidden;
     word-wrap: break-word;
     opacity: 0;
@@ -697,6 +832,13 @@ body.dark #duration {
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Скрываем скроллбар */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE и Edge */
+}
+
+.lyrics-container::-webkit-scrollbar {
+    display: none; /* Webkit браузеры */
 }
 .lyrics-container.visible {
     animation: lyricsContainerAppear 0.45s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;

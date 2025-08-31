@@ -6,6 +6,10 @@ const audioPlayer = document.getElementById('audio-player');
 // Переменные состояния
 let lyricsData = [];
 let lastLyric = '';
+let isSongStart = true; // Флаг для отслеживания начала песни
+let wasPaused = false; // Флаг для отслеживания состояния паузы
+let shouldShowLoadingAnimation = true; // Флаг для управления отображением анимации загрузки
+let justResumed = false; // Флаг для отслеживания возобновления воспроизведения
 
 // Изначально скрываем текст песни
 lyricsContainer.classList.remove('visible');
@@ -92,36 +96,130 @@ function syncLyrics(audioElement) {
         // Определяем текст для отображения (может быть пустой строкой)
         const lyricText = currentLyric ? currentLyric.text : '';
         
-        // Обновляем текст только если он изменился
-        if (lyricText !== lastLyric) {
+        // При возобновлении после паузы показываем актуальный текст сразу без анимации
+        if (justResumed) {
+            // Обновляем текст немедленно без анимации
+            lyricsLine.textContent = lyricText;
             lastLyric = lyricText;
-            lyricsLine.classList.add('slide-out');
             
-            setTimeout(() => {
-                lyricsLine.textContent = lastLyric;
-                lyricsLine.classList.remove('slide-out');
-                lyricsLine.classList.add('slide-in');
-
-                // Проверить, помещается ли текст в одну строку
-                const isSingleLine = lyricsLine.scrollWidth <= lyricsLine.clientWidth;
-                if (isSingleLine) {
-                    lyricsContainer.classList.add('single-line');
-                } else {
-                    lyricsContainer.classList.remove('single-line');
-                }
+            // Проверить, помещается ли текст в одну строку
+            const isSingleLine = lyricsLine.scrollWidth <= lyricsLine.clientWidth;
+            if (isSingleLine) {
+                lyricsContainer.classList.add('single-line');
+            } else {
+                lyricsContainer.classList.remove('single-line');
+            }
+            
+            // Сбрасываем флаг justResumed после первого обновления
+            justResumed = false;
+            
+            // Продолжаем выполнение основной логики обновления текста
+            // Проверяем, изменился ли текст или это начало песни
+            if (lyricText === lastLyric && !isSongStart) {
+                // Текст не изменился и это не начало песни, выходим
+                return;
+            }
+        }
+        
+        // Обновляем текст только если он изменился
+        if (lyricText !== lastLyric || isSongStart) {
+            lastLyric = lyricText;
+            // Проверяем, нужно ли показывать анимацию загрузки
+            const showLoading = (lyricText === '' && shouldShowLoadingAnimation) || isSongStart;
+            
+            if (showLoading) {
+                lyricsLine.classList.add('slide-out');
                 
-                // Удаляем класс slide-in после завершения анимации
                 setTimeout(() => {
-                    lyricsLine.classList.remove('slide-in');
+                    // Отображаем анимацию "набора текста"
+                    if (!lyricsLine.querySelector('.wave-loader')) {
+                        lyricsLine.innerHTML = `
+                            <div class="wave-loader">
+                                <div class="wave-dot"></div>
+                                <div class="wave-dot"></div>
+                                <div class="wave-dot"></div>
+                            </div>
+                        `;
+                    }
+                    
+                    lyricsLine.classList.remove('slide-out');
+                    lyricsLine.classList.add('slide-in');
+
+                    // Проверить, помещается ли текст в одну строку
+                    const isSingleLine = lyricsLine.scrollWidth <= lyricsLine.clientWidth;
+                    if (isSingleLine) {
+                        lyricsContainer.classList.add('single-line');
+                    } else {
+                        lyricsContainer.classList.remove('single-line');
+                    }
+                    
+                    // Удаляем класс slide-in после завершения анимации
+                    setTimeout(() => {
+                        lyricsLine.classList.remove('slide-in');
+                    }, 500);
                 }, 500);
-            }, 500);
+                
+                // Сбрасываем флаги после отображения анимации загрузки
+                isSongStart = false;
+                shouldShowLoadingAnimation = false;
+            } else if (lyricText !== '') {
+                // Показываем текст песни
+                lyricsLine.classList.add('slide-out');
+                
+                setTimeout(() => {
+                    lyricsLine.textContent = lastLyric;
+                    lyricsLine.classList.remove('slide-out');
+                    lyricsLine.classList.add('slide-in');
+
+                    // Проверить, помещается ли текст в одну строку
+                    const isSingleLine = lyricsLine.scrollWidth <= lyricsLine.clientWidth;
+                    if (isSingleLine) {
+                        lyricsContainer.classList.add('single-line');
+                    } else {
+                        lyricsContainer.classList.remove('single-line');
+                    }
+                    
+                    // Удаляем класс slide-in после завершения анимации
+                    setTimeout(() => {
+                        lyricsLine.classList.remove('slide-in');
+                    }, 500);
+                }, 500);
+            } else {
+                // Если текст пустой и не нужно показывать анимацию загрузки, просто очищаем содержимое
+                lyricsLine.textContent = '';
+            }
         }
     });
 }
 
 // Обработчики событий
 audioPlayer.addEventListener('play', () => {
-    showLoadingAnimation();
+    // Устанавливаем флаги для отображения анимации загрузки только если:
+    // 1. Это новая песня (время воспроизведения близко к началу)
+    // 2. Песня не была на паузе
+    if (audioPlayer.currentTime < 0.1 && !wasPaused) {
+        isSongStart = true;
+        shouldShowLoadingAnimation = true;
+        justResumed = false;
+        // Показываем анимацию загрузки только при начале воспроизведения
+        showLoadingAnimation();
+    } else {
+        // При возобновлении после паузы не показываем анимацию загрузки
+        shouldShowLoadingAnimation = false;
+        justResumed = true;
+    }
+    // Сбрасываем флаг паузы
+    wasPaused = false;
+});
+
+// Отслеживание состояния паузы
+audioPlayer.addEventListener('pause', () => {
+    wasPaused = true;
+});
+
+// Сброс флага начала песни при завершении песни
+audioPlayer.addEventListener('ended', () => {
+    isSongStart = true;
 });
 
 // Загрузка и синхронизация текста
