@@ -112,6 +112,95 @@ function arrayBufferToBase64(buffer) {
     return window.btoa(binary);
 }
 
+// Функция для получения хэша файла (для кэширования)
+async function getFileHash(fileUrl) {
+    try {
+        const response = await fetch(fileUrl, { method: 'HEAD' });
+        const lastModified = response.headers.get('Last-Modified');
+        return btoa(fileUrl + (lastModified || ''));
+    } catch (err) {
+        // Если не удалось получить заголовки, используем URL как fallback
+        return btoa(fileUrl);
+    }
+}
+
+// Асинхронная функция для загрузки метаданных
+async function loadMetadata() {
+    const songTitleEl = document.getElementById('song-title');
+    const songArtistEl = document.getElementById('song-artist');
+    
+    // Показываем индикатор загрузки
+    songTitleEl.textContent = "Загрузка...";
+    songArtistEl.textContent = "";
+    
+    try {
+        // Получаем хэш файла для кэширования
+        const cacheKey = 'metadata_cache_' + await getFileHash('music.mp3');
+        
+        // Проверяем кэш
+        const cachedData = localStorage.getItem(cacheKey);
+        if (cachedData) {
+            const metadata = JSON.parse(cachedData);
+            updateMetadataDisplay(metadata);
+            return;
+        }
+        
+        // Если нет кэша, загружаем файл
+        const response = await fetch('music.mp3');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const blob = await response.blob();
+        const metadata = await musicMetadata.parseBlob(blob);
+        
+        // Сохраняем в кэш
+        localStorage.setItem(cacheKey, JSON.stringify({
+            common: {
+                title: metadata.common.title,
+                artist: metadata.common.artist,
+                picture: metadata.common.picture ? [{
+                    format: metadata.common.picture[0].format,
+                    data: arrayBufferToBase64(metadata.common.picture[0].data)
+                }] : null
+            },
+            format: {
+                duration: metadata.format.duration
+            }
+        }));
+        
+        // Обновляем отображение
+        updateMetadataDisplay(metadata);
+    } catch (err) {
+        console.error("Ошибка при чтении метаданных:", err);
+        songTitleEl.textContent = "Ошибка чтения тегов";
+        songArtistEl.textContent = "";
+    }
+}
+
+// Функция для обновления отображения метаданных
+function updateMetadataDisplay(metadata) {
+    document.getElementById('song-title').textContent = metadata.common.title || "Неизвестный трек";
+    document.getElementById('song-artist').textContent = metadata.common.artist || "Неизвестный исполнитель";
+
+    if (metadata.common.picture?.length) {
+        // Если данные уже в base64 (из кэша)
+        if (typeof metadata.common.picture[0].data === 'string') {
+            document.getElementById('album-art').src = `data:${metadata.common.picture[0].format};base64,${metadata.common.picture[0].data}`;
+        } else {
+            // Если данные в ArrayBuffer (новая загрузка)
+            const picture = metadata.common.picture[0];
+            const base64String = arrayBufferToBase64(picture.data);
+            document.getElementById('album-art').src = `data:${picture.format};base64,${base64String}`;
+        }
+    }
+
+    if (metadata.format.duration) {
+        document.getElementById('duration').textContent = formatTime(metadata.format.duration);
+    }
+
+    // Сброс прогресс бара при загрузке
+    progressBar.style.width = '0%';
+    currentTimeEl.textContent = '0:00';
+}
+
 // Обработчики событий для прогресс бара
 progressContainer.addEventListener('mousedown', (e) => {
     isDragging = true;
@@ -279,33 +368,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
-    try {
-        const response = await fetch('music.mp3');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const blob = await response.blob();
-        const metadata = await musicMetadata.parseBlob(blob);
-
-        document.getElementById('song-title').textContent = metadata.common.title || "Неизвестный трек";
-        document.getElementById('song-artist').textContent = metadata.common.artist || "Неизвестный исполнитель";
-
-        if (metadata.common.picture?.length) {
-            const picture = metadata.common.picture[0];
-            const base64String = arrayBufferToBase64(picture.data);
-            document.getElementById('album-art').src = `data:${picture.format};base64,${base64String}`;
-        }
-
-        if (metadata.format.duration) {
-            document.getElementById('duration').textContent = formatTime(metadata.format.duration);
-        }
-
-        // Сброс прогресс бара при загрузке
-        progressBar.style.width = '0%';
-        currentTimeEl.textContent = '0:00';
-    } catch (err) {
-        console.error("Ошибка при чтении метаданных:", err);
-        document.getElementById('song-title').textContent = "Ошибка чтения тегов";
-        document.getElementById('song-artist').textContent = "";
-    }
+    // Асинхронная загрузка метаданных
+    loadMetadata();
     
     if (loadingAnimation) {
         loadingAnimation.style.animation = 'noteToLyrics 1s ease-in-out forwards';
