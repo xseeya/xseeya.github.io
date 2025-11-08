@@ -117,6 +117,7 @@ class MusicPlayerApp {
 
         this.player.onPlayStateChange = (isPlaying) => {
             this.playBtn.classList.toggle('playing', isPlaying);
+            this.updateLyricsVisibility(isPlaying);
         };
 
         this.player.onMetadataLoaded = () => {
@@ -196,6 +197,16 @@ class MusicPlayerApp {
                 line.classList.remove('active');
             }
         });
+    }
+
+    updateLyricsVisibility(isPlaying) {
+        if (isPlaying) {
+            this.lyricsContent.classList.remove('lyrics-hidden');
+            this.lyricsContent.classList.add('lyrics-visible');
+        } else {
+            this.lyricsContent.classList.remove('lyrics-visible');
+            this.lyricsContent.classList.add('lyrics-hidden');
+        }
     }
 
     updateActivePlaylistItem(index) {
