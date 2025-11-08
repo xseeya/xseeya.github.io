@@ -197,7 +197,44 @@ class MusicPlayerApp {
         const currentLine = this.lrcParser.getCurrentLine(currentTime);
         
         if (!currentLine) {
-            this.lyricsContent.innerHTML = '<p class="no-lyrics">♪</p>';
+            // Если есть текст, но текущее время еще не дошло до первой строки
+            if (this.currentLyrics.length > 0) {
+                const firstLineTime = this.currentLyrics[0].time;
+                const timeUntilFirst = firstLineTime - currentTime;
+                
+                // Показываем пульсирующие точки, если до первой строки больше 3 секунд
+                if (timeUntilFirst > 3) {
+                    this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="pulsing-dots"><span></span><span></span><span></span></div></div>';
+                }
+                // Отсчет 3
+                else if (timeUntilFirst > 2 && timeUntilFirst <= 3) {
+                    this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="countdown">3</div></div>';
+                }
+                // Отсчет 2
+                else if (timeUntilFirst > 1 && timeUntilFirst <= 2) {
+                    this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="countdown">2</div></div>';
+                }
+                // Отсчет 1
+                else if (timeUntilFirst > 0 && timeUntilFirst <= 1) {
+                    this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="countdown">1</div></div>';
+                }
+                // Показываем первую строку, если уже время пришло
+                else {
+                    const firstLine = this.currentLyrics[0];
+                    this.lyricsContent.innerHTML = '';
+                    const div = document.createElement('div');
+                    div.className = 'lyric-line active';
+                    div.textContent = firstLine.text || '♪';
+                    div.dataset.index = 0;
+                    div.dataset.time = firstLine.time;
+                    div.addEventListener('click', () => {
+                        this.player.seek(firstLine.time);
+                    });
+                    this.lyricsContent.appendChild(div);
+                }
+            } else {
+                this.lyricsContent.innerHTML = '<p class="no-lyrics">♪</p>';
+            }
             return;
         }
 
