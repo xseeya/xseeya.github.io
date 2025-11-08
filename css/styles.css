@@ -405,11 +405,11 @@ body {
 }
 
 .lyrics-content {
-    max-height: 300px;
-    overflow-y: auto;
     line-height: 1.8;
     opacity: 0;
     transition: opacity 0.8s ease;
+    overflow: hidden;
+    min-height: 150px;
 }
 
 .lyrics-content.lyrics-visible {
@@ -454,7 +454,8 @@ body {
     border-radius: 0.25rem;
     transition: all 0.4s ease;
     cursor: pointer;
-    opacity: 0.6;
+    opacity: 0;
+    display: none;
 }
 
 .lyrics-visible .lyric-line {
@@ -479,18 +480,27 @@ body {
     }
 }
 
-.lyric-line:hover {
+.lyric-line.visible {
+    display: block;
+    opacity: 0.4;
+}
+
+.lyric-line.visible:hover {
     background: var(--bg-tertiary);
-    opacity: 0.9;
+    opacity: 0.6;
 }
 
 .lyric-line.active {
+    display: block;
     background: var(--lyrics-active-bg);
     color: var(--lyrics-active);
-    font-weight: 600;
-    transform: scale(1.05);
-    padding-left: 1rem;
+    font-weight: 700;
+    font-size: 1.15rem;
+    transform: scale(1.1);
+    padding: 0.75rem 1rem;
     opacity: 1;
+    box-shadow: 0 2px 8px var(--shadow);
+    border-left: 4px solid var(--lyrics-active);
 }
 
 .footer {
@@ -573,6 +583,15 @@ body {
     .play-btn {
         width: 56px;
         height: 56px;
+    }
+
+    .player-section {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .lyrics-container {
+        order: -1;
     }
 }
 

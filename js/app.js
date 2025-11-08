@@ -9,6 +9,7 @@ class MusicPlayerApp {
         
         this.initElements();
         this.initTheme();
+        this.initVolume();
         this.loadPlaylist();
         this.setupEventListeners();
         this.setupPlayerCallbacks();
@@ -37,6 +38,17 @@ class MusicPlayerApp {
     initTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+
+    initVolume() {
+        const savedVolume = localStorage.getItem('volume');
+        if (savedVolume !== null) {
+            const volumeValue = parseFloat(savedVolume);
+            this.volumeBar.value = volumeValue * 100;
+            this.player.setVolume(volumeValue);
+        } else {
+            this.player.setVolume(0.7);
+        }
     }
 
     async loadPlaylist() {
@@ -94,7 +106,9 @@ class MusicPlayerApp {
         });
         
         this.volumeBar.addEventListener('input', (e) => {
-            this.player.setVolume(e.target.value / 100);
+            const volume = e.target.value / 100;
+            this.player.setVolume(volume);
+            localStorage.setItem('volume', volume);
         });
         
         this.themeToggle.addEventListener('click', () => this.toggleTheme());
@@ -190,11 +204,16 @@ class MusicPlayerApp {
         
         const lines = this.lyricsContent.querySelectorAll('.lyric-line');
         lines.forEach((line, index) => {
-            if (currentLine && index === currentLine.index) {
-                line.classList.add('active');
-                line.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            } else {
-                line.classList.remove('active');
+            line.classList.remove('active', 'visible');
+            
+            if (currentLine) {
+                const currentIndex = currentLine.index;
+                
+                if (index === currentIndex) {
+                    line.classList.add('active');
+                } else if (index === currentIndex - 1 || index === currentIndex + 1) {
+                    line.classList.add('visible');
+                }
             }
         });
     }
