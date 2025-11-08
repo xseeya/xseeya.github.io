@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Персональный сайт-визитка с музыкальным плеером">
+    <title>Моя визитка | Music Player</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header с информацией о владельце -->
+        <header class="profile-header">
+            <div class="profile-info">
+                <div class="avatar-container">
+                    <img src="assets/avatar.svg" alt="Аватар профиля" class="avatar">
+                </div>
+                <div class="bio">
+                    <h1 class="name">Иван Петров</h1>
+                    <p class="age">25 лет</p>
+                    <p class="description">
+                        Увлеченный разработчик и меломан. Создаю веб-приложения и люблю делиться музыкой. 
+                        В свободное время изучаю новые технологии и играю на гитаре.
+                    </p>
+                    <div class="social-links">
+                        <a href="https://vk.com/yourprofile" target="_blank" rel="noopener" aria-label="VK профиль" class="social-link">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14c5.6 0 6.93-1.33 6.93-6.93V8.93C22 3.33 20.67 2 15.07 2zm3.45 14.96c-.41.46-1.17.71-2.26.71h-.47c-.76 0-.97-.27-2.03-1.36-.99-1.02-1.42-1.16-1.67-1.16-.34 0-.43.09-.43.53v1.23c0 .33-.11.53-1.04.53-1.54 0-3.25-.93-4.45-2.66-1.79-2.5-2.28-4.38-2.28-4.76 0-.25.09-.48.53-.48h.47c.39 0 .54.18.69.59.76 2.17 2.03 4.07 2.55 4.07.2 0 .28-.09.28-.59v-2.28c-.06-.96-.56-1.04-.56-1.38 0-.2.17-.39.43-.39h1.49c.36 0 .49.19.49.56v3.07c0 .36.16.49.26.49.2 0 .36-.13.73-.49 1.12-1.25 1.92-3.18 1.92-3.18.1-.23.28-.48.68-.48h.47c.43 0 .53.22.43.56-.16.78-1.92 3.49-1.92 3.49-.17.28-.23.41 0 .72.17.23.73.72 1.1 1.15.68.79 1.21 1.45 1.35 1.91.14.45-.08.68-.51.68z"/>
+                            </svg>
+                        </a>
+                        <a href="https://t.me/yourusername" target="_blank" rel="noopener" aria-label="Telegram" class="social-link">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.10.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                            </svg>
+                        </a>
+                        <a href="https://steamcommunity.com/id/yourprofile" target="_blank" rel="noopener" aria-label="Steam профиль" class="social-link">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10c-4.6 0-8.45-3.08-9.64-7.27l3.83 1.58a2.84 2.84 0 0 0 2.78 2.27c1.56 0 2.83-1.27 2.83-2.83v-.13l3.4-2.43h.08c2.08 0 3.77-1.69 3.77-3.77s-1.69-3.77-3.77-3.77-3.78 1.69-3.78 3.77v.05l-2.37 3.46-.16-.01c-.59 0-1.14.18-1.59.49L2 11.2C2.43 6.05 6.73 2 12 2M8.28 17.17c.8.33 1.72-.05 2.05-.85.33-.8-.05-1.71-.85-2.04l-1.23-.51c.41.67 1.03 1.21 1.78 1.54.47.2.99.27 1.5.2.36-.05.71-.18 1.02-.39.59-.39.98-1.01 1.09-1.68.12-.85-.16-1.67-.68-2.23-.73-.78-1.79-1.04-2.77-.65-.68.27-1.23.83-1.49 1.55L4.96 9.99l-.01.03c-.71 1.67.07 3.6 1.74 4.32l1.59.83zm7.32-7.64c1.39 0 2.52-1.13 2.52-2.52S17 4.49 15.6 4.49c-1.39 0-2.52 1.13-2.52 2.52s1.13 2.52 2.52 2.52zm-1.88-2.52c0-1.04.84-1.88 1.88-1.88s1.88.84 1.88 1.88-.84 1.88-1.88 1.88-1.88-.84-1.88-1.88z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                <svg class="sun-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="5"/>
+                    <line x1="12" y1="1" x2="12" y2="3"/>
+                    <line x1="12" y1="21" x2="12" y2="23"/>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                    <line x1="1" y1="12" x2="3" y2="12"/>
+                    <line x1="21" y1="12" x2="23" y2="12"/>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+                </svg>
+                <svg class="moon-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                </svg>
+            </button>
+        </header>
+
+        <!-- Музыкальный плеер -->
+        <main class="player-section">
+            <div class="player-container">
+                <div class="now-playing">
+                    <div class="track-info">
+                        <h2 class="track-title" id="trackTitle">Выберите трек</h2>
+                        <p class="track-artist" id="trackArtist">---</p>
+                    </div>
+                </div>
+
+                <div class="visualizer" id="visualizer">
+                    <canvas id="visualizerCanvas"></canvas>
+                </div>
+
+                <div class="progress-container">
+                    <div class="time current-time" id="currentTime">0:00</div>
+                    <input type="range" class="progress-bar" id="progressBar" min="0" max="100" value="0" step="0.1">
+                    <div class="time total-time" id="totalTime">0:00</div>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn" id="shuffleBtn" aria-label="Перемешать">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="16 3 21 3 21 8"/>
+                            <line x1="4" y1="20" x2="21" y2="3"/>
+                            <polyline points="21 16 21 21 16 21"/>
+                            <line x1="15" y1="15" x2="21" y2="21"/>
+                            <line x1="4" y1="4" x2="9" y2="9"/>
+                        </svg>
+                    </button>
+                    <button class="control-btn" id="prevBtn" aria-label="Предыдущий трек">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                        </svg>
+                    </button>
+                    <button class="control-btn play-btn" id="playBtn" aria-label="Воспроизвести">
+                        <svg class="play-icon" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <svg class="pause-icon" width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                        </svg>
+                    </button>
+                    <button class="control-btn" id="nextBtn" aria-label="Следующий трек">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16 18h2V6h-2zm-11-7l8.5-6v12z"/>
+                        </svg>
+                    </button>
+                    <button class="control-btn" id="repeatBtn" aria-label="Повтор">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="17 1 21 5 17 9"/>
+                            <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                            <polyline points="7 23 3 19 7 15"/>
+                            <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="volume-container">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="volume-icon">
+                        <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                    </svg>
+                    <input type="range" class="volume-bar" id="volumeBar" min="0" max="100" value="70">
+                </div>
+            </div>
+
+            <!-- Плейлист -->
+            <div class="playlist-container">
+                <h3 class="playlist-title">Плейлист</h3>
+                <ul class="playlist" id="playlist"></ul>
+            </div>
+
+            <!-- Тексты песен -->
+            <div class="lyrics-container">
+                <h3 class="lyrics-title">Текст песни</h3>
+                <div class="lyrics-content" id="lyricsContent">
+                    <p class="no-lyrics">Выберите трек для отображения текста</p>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>&copy; 2024 Иван Петров. Сделано с ❤️ и музыкой</p>
+        </footer>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
