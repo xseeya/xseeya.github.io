@@ -208,17 +208,46 @@ body {
     font-size: 0.9rem;
 }
 
-.visualizer {
-    height: 60px;
+.player-lyrics {
+    min-height: 100px;
+    max-height: 150px;
     background: var(--bg-secondary);
     border-radius: 0.5rem;
     margin-bottom: 1rem;
     overflow: hidden;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-#visualizerCanvas {
+.player-lyrics-content {
     width: 100%;
-    height: 100%;
+    text-align: center;
+    line-height: 1.8;
+}
+
+.player-lyrics-content .lyric-line {
+    padding: 0.4rem;
+    border-radius: 0.25rem;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    opacity: 0.4;
+    font-size: 0.95rem;
+}
+
+.player-lyrics-content .lyric-line.active {
+    background: var(--lyrics-active-bg);
+    color: var(--lyrics-active);
+    font-weight: 700;
+    font-size: 1.2rem;
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.player-lyrics-content .lyric-line:hover {
+    background: var(--bg-tertiary);
+    opacity: 0.6;
 }
 
 .progress-container {
@@ -346,8 +375,7 @@ body {
     color: var(--text-secondary);
 }
 
-.playlist-container,
-.lyrics-container {
+.playlist-container {
     background: var(--bg-secondary);
     border-radius: 1rem;
     padding: 1.25rem;
@@ -355,13 +383,11 @@ body {
     transition: all 0.3s ease;
 }
 
-.playlist-container:hover,
-.lyrics-container:hover {
+.playlist-container:hover {
     box-shadow: 0 6px 12px var(--shadow-lg);
 }
 
-.playlist-title,
-.lyrics-title {
+.playlist-title {
     font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 0.75rem;
@@ -404,103 +430,12 @@ body {
     opacity: 0.8;
 }
 
-.lyrics-content {
-    line-height: 1.8;
-    opacity: 0;
-    transition: opacity 0.8s ease;
-    overflow: hidden;
-    min-height: 150px;
-}
-
-.lyrics-content.lyrics-visible {
-    opacity: 1;
-    animation: fadeIn 0.8s ease forwards;
-}
-
-.lyrics-content.lyrics-hidden {
-    animation: fadeOut 0.6s ease forwards;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes fadeOut {
-    from {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-}
-
 .no-lyrics {
     text-align: center;
     color: var(--text-secondary);
-    padding: 1.5rem;
-}
-
-.lyric-line {
-    padding: 0.4rem;
-    border-radius: 0.25rem;
-    transition: all 0.4s ease;
-    cursor: pointer;
-    opacity: 0;
-    display: none;
-}
-
-.lyrics-visible .lyric-line {
-    animation: lyricFadeIn 0.5s ease forwards;
-}
-
-.lyrics-visible .lyric-line:nth-child(1) { animation-delay: 0.05s; }
-.lyrics-visible .lyric-line:nth-child(2) { animation-delay: 0.1s; }
-.lyrics-visible .lyric-line:nth-child(3) { animation-delay: 0.15s; }
-.lyrics-visible .lyric-line:nth-child(4) { animation-delay: 0.2s; }
-.lyrics-visible .lyric-line:nth-child(5) { animation-delay: 0.25s; }
-.lyrics-visible .lyric-line:nth-child(n+6) { animation-delay: 0.3s; }
-
-@keyframes lyricFadeIn {
-    from {
-        opacity: 0;
-        transform: translateX(-10px);
-    }
-    to {
-        opacity: 0.6;
-        transform: translateX(0);
-    }
-}
-
-.lyric-line.visible {
-    display: block;
-    opacity: 0.4;
-}
-
-.lyric-line.visible:hover {
-    background: var(--bg-tertiary);
-    opacity: 0.6;
-}
-
-.lyric-line.active {
-    display: block;
-    background: var(--lyrics-active-bg);
-    color: var(--lyrics-active);
-    font-weight: 700;
-    font-size: 1.15rem;
-    transform: scale(1.1);
-    padding: 0.75rem 1rem;
-    opacity: 1;
-    box-shadow: 0 2px 8px var(--shadow);
-    border-left: 4px solid var(--lyrics-active);
+    padding: 0.5rem;
+    opacity: 0.7;
+    font-style: italic;
 }
 
 .footer {
@@ -531,22 +466,14 @@ body {
 @media (min-width: 768px) {
     .player-section {
         grid-template-columns: 2fr 1fr;
-        grid-template-rows: auto auto;
     }
 
     .player-container {
         grid-column: 1 / 2;
-        grid-row: 1 / 3;
     }
 
     .playlist-container {
         grid-column: 2 / 3;
-        grid-row: 1 / 2;
-    }
-
-    .lyrics-container {
-        grid-column: 2 / 3;
-        grid-row: 2 / 3;
     }
 }
 
@@ -588,10 +515,6 @@ body {
     .player-section {
         display: flex;
         flex-direction: column;
-    }
-
-    .lyrics-container {
-        order: -1;
     }
 }
 

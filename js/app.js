@@ -13,7 +13,6 @@ class MusicPlayerApp {
         this.loadPlaylist();
         this.setupEventListeners();
         this.setupPlayerCallbacks();
-        this.setupVisualizer();
     }
 
     initElements() {
@@ -29,10 +28,8 @@ class MusicPlayerApp {
         this.trackTitle = document.getElementById('trackTitle');
         this.trackArtist = document.getElementById('trackArtist');
         this.playlistEl = document.getElementById('playlist');
-        this.lyricsContent = document.getElementById('lyricsContent');
+        this.lyricsContent = document.getElementById('playerLyricsContent');
         this.themeToggle = document.getElementById('themeToggle');
-        this.visualizerCanvas = document.getElementById('visualizerCanvas');
-        this.visualizerCtx = this.visualizerCanvas.getContext('2d');
     }
 
     initTheme() {
@@ -131,7 +128,6 @@ class MusicPlayerApp {
 
         this.player.onPlayStateChange = (isPlaying) => {
             this.playBtn.classList.toggle('playing', isPlaying);
-            this.updateLyricsVisibility(isPlaying);
         };
 
         this.player.onMetadataLoaded = () => {
@@ -180,51 +176,43 @@ class MusicPlayerApp {
             return;
         }
 
+        this.lyricsContent.innerHTML = '<p class="no-lyrics">♪ Воспроизведите трек ♪</p>';
+    }
+
+    updateLyrics(currentTime) {
+        if (!this.currentLyrics || this.currentLyrics.length === 0) return;
+
+        const currentLine = this.lrcParser.getCurrentLine(currentTime);
+        
+        if (!currentLine) {
+            this.lyricsContent.innerHTML = '<p class="no-lyrics">♪</p>';
+            return;
+        }
+
+        const currentIndex = currentLine.index;
+        const linesToShow = 3;
+        const startIndex = Math.max(0, currentIndex - 1);
+        const endIndex = Math.min(this.currentLyrics.length, currentIndex + linesToShow);
+
         this.lyricsContent.innerHTML = '';
         
-        this.currentLyrics.forEach((line, index) => {
+        for (let i = startIndex; i < endIndex; i++) {
+            const line = this.currentLyrics[i];
             const div = document.createElement('div');
             div.className = 'lyric-line';
             div.textContent = line.text || '♪';
-            div.dataset.index = index;
+            div.dataset.index = i;
             div.dataset.time = line.time;
+            
+            if (i === currentIndex) {
+                div.classList.add('active');
+            }
             
             div.addEventListener('click', () => {
                 this.player.seek(line.time);
             });
             
             this.lyricsContent.appendChild(div);
-        });
-    }
-
-    updateLyrics(currentTime) {
-        if (!this.currentLyrics) return;
-
-        const currentLine = this.lrcParser.getCurrentLine(currentTime);
-        
-        const lines = this.lyricsContent.querySelectorAll('.lyric-line');
-        lines.forEach((line, index) => {
-            line.classList.remove('active', 'visible');
-            
-            if (currentLine) {
-                const currentIndex = currentLine.index;
-                
-                if (index === currentIndex) {
-                    line.classList.add('active');
-                } else if (index === currentIndex - 1 || index === currentIndex + 1) {
-                    line.classList.add('visible');
-                }
-            }
-        });
-    }
-
-    updateLyricsVisibility(isPlaying) {
-        if (isPlaying) {
-            this.lyricsContent.classList.remove('lyrics-hidden');
-            this.lyricsContent.classList.add('lyrics-visible');
-        } else {
-            this.lyricsContent.classList.remove('lyrics-visible');
-            this.lyricsContent.classList.add('lyrics-hidden');
         }
     }
 
@@ -265,85 +253,6 @@ class MusicPlayerApp {
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
-    }
-
-    setupVisualizer() {
-        const resizeCanvas = () => {
-            const container = this.visualizerCanvas.parentElement;
-            this.visualizerCanvas.width = container.clientWidth;
-            this.visualizerCanvas.height = container.clientHeight;
-        };
-
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        this.animateVisualizer();
-    }
-
-    animateVisualizer() {
-        const draw = () => {
-            requestAnimationFrame(draw);
-
-            const data = this.player.getAnalyserData();
-            
-            if (!data) {
-                this.drawDefaultVisualizer();
-                return;
-            }
-
-            const { width, height } = this.visualizerCanvas;
-            const barCount = 64;
-            const barWidth = width / barCount;
-
-            this.visualizerCtx.clearRect(0, 0, width, height);
-
-            const theme = document.documentElement.getAttribute('data-theme');
-            const gradient = this.visualizerCtx.createLinearGradient(0, 0, 0, height);
-            
-            if (theme === 'dark') {
-                gradient.addColorStop(0, '#818cf8');
-                gradient.addColorStop(1, '#a78bfa');
-            } else {
-                gradient.addColorStop(0, '#6366f1');
-                gradient.addColorStop(1, '#8b5cf6');
-            }
-
-            for (let i = 0; i < barCount; i++) {
-                const dataIndex = Math.floor((i / barCount) * data.length);
-                const barHeight = (data[dataIndex] / 255) * height;
-
-                this.visualizerCtx.fillStyle = gradient;
-                this.visualizerCtx.fillRect(
-                    i * barWidth,
-                    height - barHeight,
-                    barWidth - 2,
-                    barHeight
-                );
-            }
-        };
-
-        draw();
-    }
-
-    drawDefaultVisualizer() {
-        const { width, height } = this.visualizerCanvas;
-        const barCount = 64;
-        const barWidth = width / barCount;
-
-        this.visualizerCtx.clearRect(0, 0, width, height);
-
-        const theme = document.documentElement.getAttribute('data-theme');
-        this.visualizerCtx.fillStyle = theme === 'dark' ? '#3d3d3d' : '#e9ecef';
-
-        for (let i = 0; i < barCount; i++) {
-            const barHeight = 10 + Math.random() * 20;
-            this.visualizerCtx.fillRect(
-                i * barWidth,
-                height - barHeight,
-                barWidth - 2,
-                barHeight
-            );
-        }
     }
 
     formatTime(seconds) {
