@@ -1,0 +1,20 @@
+[
+    {
+        "title": "Summer Vibes",
+        "artist": "Acoustic Dreams",
+        "file": "music/summer-vibes.mp3",
+        "lyrics": "lyrics/summer-vibes.lrc"
+    },
+    {
+        "title": "Night Drive",
+        "artist": "Synthwave Collective",
+        "file": "music/night-drive.mp3",
+        "lyrics": "lyrics/night-drive.lrc"
+    },
+    {
+        "title": "Morning Coffee",
+        "artist": "Jazz Ensemble",
+        "file": "music/morning-coffee.mp3",
+        "lyrics": "lyrics/morning-coffee.lrc"
+    }
+]
