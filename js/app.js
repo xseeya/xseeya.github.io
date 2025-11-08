@@ -6,10 +6,12 @@ class MusicPlayerApp {
         this.player = new AudioPlayer();
         this.lrcParser = new LrcParser();
         this.currentLyrics = null;
+        this.lyricsVisible = true;
         
         this.initElements();
         this.initTheme();
         this.initVolume();
+        this.initLyricsVisibility();
         this.loadPlaylist();
         this.setupEventListeners();
         this.setupPlayerCallbacks();
@@ -29,6 +31,8 @@ class MusicPlayerApp {
         this.trackArtist = document.getElementById('trackArtist');
         this.playlistEl = document.getElementById('playlist');
         this.lyricsContent = document.getElementById('playerLyricsContent');
+        this.lyricsContainer = document.getElementById('playerLyrics');
+        this.lyricsToggle = document.getElementById('lyricsToggle');
         this.themeToggle = document.getElementById('themeToggle');
     }
 
@@ -46,6 +50,12 @@ class MusicPlayerApp {
         } else {
             this.player.setVolume(0.7);
         }
+    }
+
+    initLyricsVisibility() {
+        const lyricsVisible = localStorage.getItem('lyricsVisible');
+        this.lyricsVisible = lyricsVisible === null ? true : lyricsVisible === 'true';
+        this.updateLyricsVisibility();
     }
 
     async loadPlaylist() {
@@ -109,6 +119,8 @@ class MusicPlayerApp {
         });
         
         this.themeToggle.addEventListener('click', () => this.toggleTheme());
+        
+        this.lyricsToggle.addEventListener('click', () => this.toggleLyrics());
 
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
@@ -253,6 +265,26 @@ class MusicPlayerApp {
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
+    }
+
+    toggleLyrics() {
+        this.lyricsVisible = !this.lyricsVisible;
+        this.updateLyricsVisibility();
+        localStorage.setItem('lyricsVisible', this.lyricsVisible);
+    }
+
+    updateLyricsVisibility() {
+        if (this.lyricsVisible) {
+            this.lyricsContainer.classList.remove('hidden');
+            this.lyricsToggle.classList.add('active');
+            this.lyricsToggle.setAttribute('aria-label', 'Скрыть текст песни');
+            this.lyricsToggle.title = 'Скрыть текст';
+        } else {
+            this.lyricsContainer.classList.add('hidden');
+            this.lyricsToggle.classList.remove('active');
+            this.lyricsToggle.setAttribute('aria-label', 'Показать текст песни');
+            this.lyricsToggle.title = 'Показать текст';
+        }
     }
 
     formatTime(seconds) {
