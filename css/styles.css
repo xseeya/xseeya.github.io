@@ -162,7 +162,7 @@ body {
 }
 
 .sun-icon {
-    display: none;
+    display: block;
     font-size: 24px;
 }
 
