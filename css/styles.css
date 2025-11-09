@@ -147,7 +147,7 @@ body {
     border-radius: 50%;
     border: none;
     background: var(--bg-tertiary);
-    color: var(--text-primary);
+    color: #2d2d2d;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -161,21 +161,17 @@ body {
     transform: rotate(180deg);
 }
 
-.sun-icon {
+.cloud-icon {
     display: block;
-    font-size: 24px;
+    transition: color 0.3s ease;
 }
 
-.moon-icon {
-    display: block;
+[data-theme="dark"] .theme-toggle {
+    color: white;
 }
 
-[data-theme="dark"] .sun-icon {
-    display: block;
-}
-
-[data-theme="dark"] .moon-icon {
-    display: none;
+[data-theme="dark"] .theme-toggle:hover {
+    color: white;
 }
 
 .player-section {
