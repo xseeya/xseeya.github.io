@@ -14,9 +14,9 @@ class MusicPlayerApp {
         this.initTheme();
         this.initVolume();
         this.initLyricsVisibility();
-        this.loadPlaylist();
         this.setupEventListeners();
         this.setupPlayerCallbacks();
+        this.loadPlaylist();
     }
 
     initElements() {
