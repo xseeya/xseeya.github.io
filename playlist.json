@@ -1,20 +1,20 @@
 [
     {
-        "title": "Summer Vibes",
-        "artist": "Acoustic Dreams",
-        "file": "music/summer-vibes.mp3",
-        "lyrics": "lyrics/summer-vibes.lrc"
+        "title": "Красота",
+        "artist": "Три дня дождя",
+        "file": "music/music.mp3",
+        "lyrics": "lyrics/music.lrc"
     },
     {
-        "title": "Night Drive",
-        "artist": "Synthwave Collective",
-        "file": "music/night-drive.mp3",
-        "lyrics": "lyrics/night-drive.lrc"
+        "title": "Космос",
+        "artist": "Три дня дождя feat. Лали",
+        "file": "music/music1.mp3",
+        "lyrics": "lyrics/music1.lrc"
     },
     {
-        "title": "Morning Coffee",
-        "artist": "Jazz Ensemble",
-        "file": "music/morning-coffee.mp3",
-        "lyrics": "lyrics/morning-coffee.lrc"
+        "title": "Пожары",
+        "artist": "XOLIDAYBOY",
+        "file": "music/music3.mp3",
+        "lyrics": "lyrics/music3.lrc"
     }
 ]
