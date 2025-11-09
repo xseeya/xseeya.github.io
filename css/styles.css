@@ -128,6 +128,10 @@ body {
     text-decoration: none;
 }
 
+.social-link i {
+    font-size: 20px;
+}
+
 .social-link:hover {
     background: var(--accent-primary);
     color: white;
@@ -159,6 +163,7 @@ body {
 
 .sun-icon {
     display: none;
+    font-size: 24px;
 }
 
 .moon-icon {
