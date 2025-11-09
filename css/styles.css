@@ -641,6 +641,10 @@ body {
         font-size: 1.5rem;
     }
 
+    .social-links {
+        justify-content: center;
+    }
+
     .theme-toggle {
         top: 1rem;
         right: 1rem;
