@@ -719,6 +719,10 @@ body {
     animation-delay: 0.6s;
 }
 
+.paused .pulsing-dots span {
+    animation-play-state: paused;
+}
+
 @keyframes dotPulse {
     0%, 80%, 100% {
         transform: scale(0.6) translateY(0);

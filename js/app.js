@@ -36,6 +36,8 @@ class MusicPlayerApp {
         this.lyricsContainer = document.getElementById('playerLyrics');
         this.lyricsToggle = document.getElementById('lyricsToggle');
         this.themeToggle = document.getElementById('themeToggle');
+        
+        this.lyricsContent.classList.add('paused');
     }
 
     initTheme() {
@@ -142,6 +144,7 @@ class MusicPlayerApp {
 
         this.player.onPlayStateChange = (isPlaying) => {
             this.playBtn.classList.toggle('playing', isPlaying);
+            this.lyricsContent.classList.toggle('paused', !isPlaying);
         };
 
         this.player.onMetadataLoaded = () => {
