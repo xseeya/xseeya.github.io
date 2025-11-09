@@ -148,13 +148,16 @@ class MusicPlayerApp {
             const duration = this.player.getDuration();
             this.totalTimeEl.textContent = this.formatTime(duration);
             this.progressBar.value = 0;
+            this.progressBar.style.setProperty('--progress', '0%');
         };
 
         this.player.onTimeUpdate = (currentTime) => {
             this.currentTimeEl.textContent = this.formatTime(currentTime);
             const duration = this.player.getDuration();
             if (duration > 0) {
-                this.progressBar.value = (currentTime / duration) * 100;
+                const progress = (currentTime / duration) * 100;
+                this.progressBar.value = progress;
+                this.progressBar.style.setProperty('--progress', `${progress}%`);
             }
             this.updateLyrics(currentTime);
         };

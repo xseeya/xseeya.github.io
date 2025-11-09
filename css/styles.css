@@ -360,6 +360,47 @@ body {
     -webkit-appearance: none;
     appearance: none;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(
+        to right,
+        var(--accent-primary) 0%,
+        var(--accent-secondary) var(--progress, 0%),
+        var(--bg-tertiary) var(--progress, 0%)
+    );
+    background-size: 100% 100%;
+    transition: background 0.1s linear;
+}
+
+.progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--progress, 0%);
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        rgba(255, 255, 255, 0.3) 100%
+    );
+    background-size: 200% 100%;
+    animation: progressShimmer 2s linear infinite;
+    pointer-events: none;
+    border-radius: 3px;
+}
+
+@keyframes progressShimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
 }
 
 .progress-bar::-webkit-slider-thumb,
@@ -578,6 +619,10 @@ body {
 
     .playlist-container {
         grid-column: 2 / 3;
+    }
+
+    .volume-bar {
+        max-width: 150px;
     }
 }
 
