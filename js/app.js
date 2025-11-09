@@ -7,6 +7,8 @@ class MusicPlayerApp {
         this.lrcParser = new LrcParser();
         this.currentLyrics = null;
         this.lyricsVisible = true;
+        this.previousLyricsState = null;
+        this.lastActiveIndex = -1;
         
         this.initElements();
         this.initTheme();
@@ -167,6 +169,8 @@ class MusicPlayerApp {
         if (!lyricsFile) {
             this.lyricsContent.innerHTML = '<p class="no-lyrics">Текст недоступен</p>';
             this.currentLyrics = null;
+            this.previousLyricsState = null;
+            this.lastActiveIndex = -1;
             return;
         }
 
@@ -174,11 +178,15 @@ class MusicPlayerApp {
             const response = await fetch(lyricsFile);
             const lrcContent = await response.text();
             this.currentLyrics = this.lrcParser.parse(lrcContent);
+            this.previousLyricsState = null;
+            this.lastActiveIndex = -1;
             this.renderLyrics();
         } catch (error) {
             console.error('Failed to load lyrics:', error);
             this.lyricsContent.innerHTML = '<p class="no-lyrics">Не удалось загрузить текст</p>';
             this.currentLyrics = null;
+            this.previousLyricsState = null;
+            this.lastActiveIndex = -1;
         }
     }
 
@@ -197,43 +205,54 @@ class MusicPlayerApp {
         const currentLine = this.lrcParser.getCurrentLine(currentTime);
         
         if (!currentLine) {
-            // Если есть текст, но текущее время еще не дошло до первой строки
             if (this.currentLyrics.length > 0) {
                 const firstLineTime = this.currentLyrics[0].time;
                 const timeUntilFirst = firstLineTime - currentTime;
                 
-                // Показываем пульсирующие точки, если до первой строки больше 3 секунд
+                let newState;
                 if (timeUntilFirst > 3) {
-                    this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="pulsing-dots"><span></span><span></span><span></span></div></div>';
+                    newState = 'dots';
+                } else if (timeUntilFirst > 2) {
+                    newState = 'countdown-3';
+                } else if (timeUntilFirst > 1) {
+                    newState = 'countdown-2';
+                } else if (timeUntilFirst > 0) {
+                    newState = 'countdown-1';
+                } else {
+                    newState = 'first-line';
                 }
-                // Отсчет 3
-                else if (timeUntilFirst > 2 && timeUntilFirst <= 3) {
-                    this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="countdown">3</div></div>';
-                }
-                // Отсчет 2
-                else if (timeUntilFirst > 1 && timeUntilFirst <= 2) {
-                    this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="countdown">2</div></div>';
-                }
-                // Отсчет 1
-                else if (timeUntilFirst > 0 && timeUntilFirst <= 1) {
-                    this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="countdown">1</div></div>';
-                }
-                // Показываем первую строку, если уже время пришло
-                else {
-                    const firstLine = this.currentLyrics[0];
-                    this.lyricsContent.innerHTML = '';
-                    const div = document.createElement('div');
-                    div.className = 'lyric-line active';
-                    div.textContent = firstLine.text || '♪';
-                    div.dataset.index = 0;
-                    div.dataset.time = firstLine.time;
-                    div.addEventListener('click', () => {
-                        this.player.seek(firstLine.time);
-                    });
-                    this.lyricsContent.appendChild(div);
+                
+                if (this.previousLyricsState !== newState) {
+                    this.previousLyricsState = newState;
+                    
+                    if (newState === 'dots') {
+                        this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="pulsing-dots"><span></span><span></span><span></span></div></div>';
+                    } else if (newState === 'countdown-3') {
+                        this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="countdown">3</div></div>';
+                    } else if (newState === 'countdown-2') {
+                        this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="countdown">2</div></div>';
+                    } else if (newState === 'countdown-1') {
+                        this.lyricsContent.innerHTML = '<div class="no-lyrics"><div class="countdown">1</div></div>';
+                    } else if (newState === 'first-line') {
+                        const firstLine = this.currentLyrics[0];
+                        this.lyricsContent.innerHTML = '';
+                        const div = document.createElement('div');
+                        div.className = 'lyric-line active';
+                        div.textContent = firstLine.text || '♪';
+                        div.dataset.index = 0;
+                        div.dataset.time = firstLine.time;
+                        div.addEventListener('click', () => {
+                            this.player.seek(firstLine.time);
+                        });
+                        this.lyricsContent.appendChild(div);
+                        this.lastActiveIndex = 0;
+                    }
                 }
             } else {
-                this.lyricsContent.innerHTML = '<p class="no-lyrics">♪</p>';
+                if (this.previousLyricsState !== 'empty') {
+                    this.previousLyricsState = 'empty';
+                    this.lyricsContent.innerHTML = '<p class="no-lyrics">♪</p>';
+                }
             }
             return;
         }
@@ -243,25 +262,42 @@ class MusicPlayerApp {
         const startIndex = Math.max(0, currentIndex - 1);
         const endIndex = Math.min(this.currentLyrics.length, currentIndex + linesToShow);
 
-        this.lyricsContent.innerHTML = '';
+        const stateKey = `lyrics-${startIndex}-${endIndex}-${currentIndex}`;
         
-        for (let i = startIndex; i < endIndex; i++) {
-            const line = this.currentLyrics[i];
-            const div = document.createElement('div');
-            div.className = 'lyric-line';
-            div.textContent = line.text || '♪';
-            div.dataset.index = i;
-            div.dataset.time = line.time;
+        if (this.previousLyricsState !== stateKey) {
+            this.previousLyricsState = stateKey;
+            this.lyricsContent.innerHTML = '';
             
-            if (i === currentIndex) {
-                div.classList.add('active');
+            for (let i = startIndex; i < endIndex; i++) {
+                const line = this.currentLyrics[i];
+                const div = document.createElement('div');
+                div.className = 'lyric-line';
+                div.textContent = line.text || '♪';
+                div.dataset.index = i;
+                div.dataset.time = line.time;
+                
+                if (i === currentIndex) {
+                    div.classList.add('active');
+                }
+                
+                div.addEventListener('click', () => {
+                    this.player.seek(line.time);
+                });
+                
+                this.lyricsContent.appendChild(div);
             }
-            
-            div.addEventListener('click', () => {
-                this.player.seek(line.time);
+            this.lastActiveIndex = currentIndex;
+        } else if (currentIndex !== this.lastActiveIndex) {
+            const lines = this.lyricsContent.querySelectorAll('.lyric-line');
+            lines.forEach(line => {
+                const index = parseInt(line.dataset.index);
+                if (index === currentIndex) {
+                    line.classList.add('active');
+                } else {
+                    line.classList.remove('active');
+                }
             });
-            
-            this.lyricsContent.appendChild(div);
+            this.lastActiveIndex = currentIndex;
         }
     }
 
